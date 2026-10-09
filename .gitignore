@@ -42,3 +42,4 @@ state/
 .DS_Store
 Thumbs.db
 .last-sync
+.publish-allow
