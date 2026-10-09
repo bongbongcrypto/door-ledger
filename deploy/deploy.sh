@@ -4,7 +4,7 @@
 #   bash deploy/deploy.sh
 #
 # What it does:
-#   1. refuses if writer/, tools/ or the unit file have uncommitted changes
+#   1. refuses if tracked files in writer/, tools/ or the unit file have uncommitted changes
 #      (the server gets HEAD via git archive, never the working tree)
 #   2. uploads the committed writer/ and tools/ to <base>/app over ssh
 #   3. on the server: checks the key file is present (never reads it), creates the venv
@@ -26,7 +26,7 @@ UNIT=door-ledger.service
 
 cd "$(git rev-parse --show-toplevel)"
 
-dirty="$(git status --porcelain -- writer tools deploy/door-ledger.service)"
+dirty="$(git status --porcelain --untracked-files=no -- writer tools deploy/door-ledger.service)"
 if [ -n "$dirty" ]; then
   echo "refusing to deploy: uncommitted changes in writer/, tools/ or deploy/door-ledger.service:" >&2
   printf '%s\n' "$dirty" >&2
