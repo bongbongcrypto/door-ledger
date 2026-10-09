@@ -1,0 +1,1531 @@
+{
+ "probe": "tools/friction_probe.py",
+ "utc_start": "2026-10-09T12:08:36+00:00",
+ "utc_end": "2026-10-09T12:09:17+00:00",
+ "rpc": "https://rpc.tiramisu.db-chain.testnet.arkiv.network",
+ "wss": "wss://rpc.tiramisu.db-chain.testnet.arkiv.network",
+ "chain_id": 7738577,
+ "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+ "head_start": 348990,
+ "head_end": 348999,
+ "client": {
+  "python": "3.12.10",
+  "eth_abi": "6.0.0",
+  "eth_account": "0.13.7",
+  "sdk": "none (direct JSON-RPC)"
+ },
+ "docs": "Arkiv-Network/arkiv-starlight-docs@45099f7 (develop; main d64a177 has the same content in the cited files)",
+ "burn_check_evidence": "arkiv/evidence/burn-check-2026-10-09.json",
+ "counts": {
+  "requests": 52,
+  "arkiv_query": 15
+ },
+ "setup_calls": [
+  {
+   "utc": "2026-10-09T12:08:36+00:00",
+   "method": "web3_clientVersion",
+   "params": [],
+   "http": 200,
+   "headers": {
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+    "ratelimit": "limit=600, remaining=582, reset=46"
+   },
+   "result": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu"
+  },
+  {
+   "utc": "2026-10-09T12:08:36+00:00",
+   "method": "eth_chainId",
+   "params": [],
+   "http": 200,
+   "headers": {
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+    "ratelimit": "limit=600, remaining=589, reset=44"
+   },
+   "result": "0x7614d1"
+  },
+  {
+   "utc": "2026-10-09T12:08:38+00:00",
+   "method": "eth_blockNumber",
+   "params": [],
+   "http": 200,
+   "headers": {
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+    "ratelimit": "limit=600, remaining=585, reset=44"
+   },
+   "result": "0x5533e"
+  }
+ ],
+ "items": [
+  {
+   "id": "untagged_number",
+   "kind": "friction",
+   "title": "Untagged number against a u64 attribute: silent 0 rows",
+   "status": "OBSERVED",
+   "summary": "random_number_0_fddf30e51a2ea977 >= u64(0): 1 row(s); random_number_0_fddf30e51a2ea977 >= 0: 0 row(s), error none; app >= str('a'): error -32002; $createdAt >= 0: error -32002 (this system attribute holds u64 \u2014 write u64(0))",
+   "utc": "2026-10-09T12:08:39+00:00",
+   "head": 348991,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:08:39+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "app = str('doorledger') AND t0 >= u64(0)",
+      {
+       "limit": 1,
+       "select": {
+        "key": true,
+        "attributes": true
+       }
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=581, reset=43"
+     },
+     "result": {
+      "blockNumber": "0x5533e",
+      "rows": 0
+     }
+    },
+    {
+     "utc": "2026-10-09T12:08:39+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "*",
+      {
+       "limit": 20,
+       "select": {
+        "key": true,
+        "attributes": true
+       }
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=588, reset=42"
+     },
+     "result": {
+      "blockNumber": "0x5533f",
+      "rows": 20,
+      "cursor": "b64:Cu5ZWtw49FMAAAAAAAdgkA",
+      "first_row": {
+       "key": "0x351e88a9c5ceba16cc64ac2eb9d5104034f82b4d7c032ea4ca0857d65add7deb",
+       "attributes": [
+        {
+         "name": "project",
+         "type": "str",
+         "value": "arkiv-chain-indexer-baseload"
+        },
+        {
+         "name": "random_number_0_fddf30e51a2ea977",
+         "type": "u64",
+         "value": "0x7fea663567b3"
+        },
+        {
+         "name": "random_string_0_fddf30e51a2ea977",
+         "type": "str",
+         "value": "dfed4e01e80736811e57aa03ee5d2dd8"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "utc": "2026-10-09T12:08:40+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "$key = key(0x351e88a9c5ceba16cc64ac2eb9d5104034f82b4d7c032ea4ca0857d65add7deb) AND random_number_0_fddf30e51a2ea977 >= u64(0)",
+      {
+       "limit": 1
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=584, reset=42"
+     },
+     "result": {
+      "blockNumber": "0x5533f",
+      "rows": 1,
+      "first_row": {
+       "key": "0x351e88a9c5ceba16cc64ac2eb9d5104034f82b4d7c032ea4ca0857d65add7deb"
+      }
+     }
+    },
+    {
+     "utc": "2026-10-09T12:08:40+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "$key = key(0x351e88a9c5ceba16cc64ac2eb9d5104034f82b4d7c032ea4ca0857d65add7deb) AND random_number_0_fddf30e51a2ea977 >= 0",
+      {
+       "limit": 1,
+       "atBlock": "0x5533f"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=580, reset=41"
+     },
+     "result": {
+      "blockNumber": "0x5533f",
+      "rows": 0
+     }
+    },
+    {
+     "utc": "2026-10-09T12:08:41+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "app >= str('a')",
+      {
+       "limit": 1,
+       "atBlock": "0x5533f"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=587, reset=40"
+     },
+     "error": {
+      "code": -32002,
+      "message": "str values have no ordering \u2014 only i32, u64, u256 and dec support < <= > >=",
+      "data": {
+       "message": "str values have no ordering \u2014 only i32, u64, u256 and dec support < <= > >=",
+       "position": 7
+      }
+     }
+    },
+    {
+     "utc": "2026-10-09T12:08:42+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "$createdAt >= 0",
+      {
+       "limit": 1,
+       "atBlock": "0x5533f"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=583, reset=40"
+     },
+     "error": {
+      "code": -32002,
+      "message": "this system attribute holds u64 \u2014 write u64(0)",
+      "data": {
+       "message": "this system attribute holds u64 \u2014 write u64(0)",
+       "position": 14
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "uppercase_name",
+   "kind": "friction",
+   "title": "Uppercase attribute name: write reverts, query silently empty",
+   "status": "OBSERVED",
+   "summary": "write 'kind': ok 85920; write 'Kind': revert Ident32InvalidByte(0, 0x4b); query Random_number_0_fddf30e51a2ea977 (vs random_number_0_fddf30e51a2ea977, 1 row(s)): 0 row(s), error none",
+   "utc": "2026-10-09T12:08:42+00:00",
+   "head": 348991,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:08:42+00:00",
+     "method": "eth_estimateGas",
+     "params": [
+      {
+       "from": "0x000000000000000000000000000000000000beef",
+       "to": "0x4400000000000000000000000000000000000044",
+       "data": "0x496500440000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000206b696e64000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000017800000000000000000000000000000000000000000000000000000000000000"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=579, reset=39"
+     },
+     "result": "0x14fa0"
+    },
+    {
+     "utc": "2026-10-09T12:08:43+00:00",
+     "method": "eth_estimateGas",
+     "params": [
+      {
+       "from": "0x000000000000000000000000000000000000beef",
+       "to": "0x4400000000000000000000000000000000000044",
+       "data": "0x496500440000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000204b696e64000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000017800000000000000000000000000000000000000000000000000000000000000"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=578, reset=39"
+     },
+     "error": {
+      "code": 3,
+      "message": "execution reverted",
+      "data": "0x276f779800000000000000000000000000000000000000000000000000000000000000004b00000000000000000000000000000000000000000000000000000000000000"
+     },
+     "revert": "Ident32InvalidByte(0, 0x4b)"
+    },
+    {
+     "utc": "2026-10-09T12:08:43+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "$key = key(0x351e88a9c5ceba16cc64ac2eb9d5104034f82b4d7c032ea4ca0857d65add7deb) AND Random_number_0_fddf30e51a2ea977 >= u64(0)",
+      {
+       "limit": 1,
+       "atBlock": "0x5533f"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=570, reset=38"
+     },
+     "result": {
+      "blockNumber": "0x5533f",
+      "rows": 0
+     }
+    }
+   ]
+  },
+  {
+   "id": "reserved_word_name",
+   "kind": "friction",
+   "title": "Reserved words accepted as attribute names on write",
+   "status": "OBSERVED",
+   "summary": "create with attributes and/key/str: ok 95960; query and = ...: -32001 a reserved word cannot be used as an attribute name; query str = ...: -32001 str is a type name and cannot be an attribute name",
+   "utc": "2026-10-09T12:08:44+00:00",
+   "head": 348991,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:08:44+00:00",
+     "method": "eth_estimateGas",
+     "params": [
+      {
+       "from": "0x000000000000000000000000000000000000beef",
+       "to": "0x4400000000000000000000000000000000000044",
+       "data": "0x49650044000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000320000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001a0616e64000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000178000000000000000000000000000000000000000000000000000000000000006b65790000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000001780000000000000000000000000000000000000000000000000000000000000073747200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000017800000000000000000000000000000000000000000000000000000000000000"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=562, reset=38"
+     },
+     "result": "0x176d8"
+    },
+    {
+     "utc": "2026-10-09T12:08:44+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "and = str('x')",
+      {
+       "limit": 1
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=577, reset=37"
+     },
+     "error": {
+      "code": -32001,
+      "message": "a reserved word cannot be used as an attribute name",
+      "data": {
+       "message": "a reserved word cannot be used as an attribute name",
+       "position": 0
+      }
+     }
+    },
+    {
+     "utc": "2026-10-09T12:08:45+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "str = str('x')",
+      {
+       "limit": 1
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=569, reset=36"
+     },
+     "error": {
+      "code": -32001,
+      "message": "str is a type name and cannot be an attribute name",
+      "data": {
+       "message": "str is a type name and cannot be an attribute name",
+       "position": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "cursor_without_atblock",
+   "kind": "friction",
+   "title": "Cursor from the docs' pagination example fails once the head moves",
+   "status": "OBSERVED",
+   "summary": "page 1 at block 348994, cursor b64:ly...; head now 348995; page 2 as in the docs (cursor only): -32005 cursor belongs to a different query, block or select \u2014 start a new page-through; page 2 with atBlock=0x55342: none, 1 row(s)",
+   "utc": "2026-10-09T12:08:46+00:00",
+   "head": 348995,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:08:46+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "*",
+      {
+       "limit": "0x1"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=561, reset=36"
+     },
+     "result": {
+      "blockNumber": "0x55342",
+      "rows": 1,
+      "cursor": "b64:lyd3S4nKd8sAAAAAAAdgqA",
+      "first_row": {
+       "key": "0xa659e7c3be92af0c21120654016b6b458a1e0ed3988a0235976ef641ea9a9bd8"
+      }
+     }
+    },
+    {
+     "utc": "2026-10-09T12:08:49+00:00",
+     "method": "eth_blockNumber",
+     "params": [],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=576, reset=33"
+     },
+     "result": "0x55343"
+    },
+    {
+     "utc": "2026-10-09T12:08:49+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "*",
+      {
+       "cursor": "b64:lyd3S4nKd8sAAAAAAAdgqA",
+       "limit": "0x1"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=568, reset=33"
+     },
+     "error": {
+      "code": -32005,
+      "message": "cursor belongs to a different query, block or select \u2014 start a new page-through",
+      "data": {
+       "message": "cursor belongs to a different query, block or select \u2014 start a new page-through"
+      }
+     }
+    },
+    {
+     "utc": "2026-10-09T12:08:50+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "*",
+      {
+       "cursor": "b64:lyd3S4nKd8sAAAAAAAdgqA",
+       "limit": "0x1",
+       "atBlock": "0x55342"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=560, reset=32"
+     },
+     "result": {
+      "blockNumber": "0x55342",
+      "rows": 1,
+      "cursor": "b64:lyd3S4nKd8sAAAAAAAdgpw",
+      "first_row": {
+       "key": "0x396b84b6d66ad4713a5c223fba8dfc69afd304445350f7edc3c6bf0fa9dce097"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "block_param_encoding",
+   "kind": "friction",
+   "title": "Block parameter encodings differ across the read methods",
+   "status": "OBSERVED",
+   "summary": "getEntityCount block=348996: ok (1); block=\"0x55344\": error -32602: invalid params: ErrorObject { code: InvalidParams, message: \"Invalid params\", data: Some(RawValue(\"invalid type: string \\\"0x55344\\\", expected u64 at line 1 column 89\")) } | getEntity block=348996: ok; block=\"0x55344\": error -32602: invalid block param: ErrorObject { code: InvalidParams, message: \"Invalid params\", data: Some(RawValue(\"invalid type: string \\\"0x55344\\\", expected u64 at line 1 column 10\")) }; {select}: error -32602: invalid block param: ErrorObject { code: InvalidParams, message: \"Invalid params\", data: Some(RawValue(\"invalid type: map, expected u64 at line 1 column 1\")) } | arkiv_query atBlock=348996 (number): error -32602: invalid options param: ErrorObject { code: InvalidParams, message: \"Invalid params\", data: Some(RawValue(\"invalid type: integer `348996`, expected a string at line 1 column 19\")) }",
+   "utc": "2026-10-09T12:08:50+00:00",
+   "head": 348996,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:08:50+00:00",
+     "method": "eth_blockNumber",
+     "params": [],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=575, reset=32"
+     },
+     "result": "0x55344"
+    },
+    {
+     "utc": "2026-10-09T12:08:50+00:00",
+     "method": "arkiv_getEntityCount",
+     "params": [
+      {
+       "query": "$owner = addr(0x000000000000000000000000000000000000dead)",
+       "block": 348996
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=567, reset=31"
+     },
+     "result": 1
+    },
+    {
+     "utc": "2026-10-09T12:08:51+00:00",
+     "method": "arkiv_getEntityCount",
+     "params": [
+      {
+       "query": "$owner = addr(0x000000000000000000000000000000000000dead)",
+       "block": "0x55344"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=559, reset=31"
+     },
+     "error": {
+      "code": -32602,
+      "message": "invalid params: ErrorObject { code: InvalidParams, message: \"Invalid params\", data: Some(RawValue(\"invalid type: string \\\"0x55344\\\", expected u64 at line 1 column 89\")) }"
+     }
+    },
+    {
+     "utc": "2026-10-09T12:08:51+00:00",
+     "method": "arkiv_getEntity",
+     "params": [
+      "0x72818b7096c091907964b3ad44476a7630bba995cd1b005c59ae5a56f9a0d927",
+      348996
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=574, reset=30"
+     },
+     "result": {
+      "key": "0x72818b7096c091907964b3ad44476a7630bba995cd1b005c59ae5a56f9a0d927",
+      "owner": "0x000000000000000000000000000000000000dead",
+      "creator": "0x65ebe97db5cd7160bf9a2aa7818241f9e5768a92",
+      "createdAt": "0x54c4f",
+      "expiresAt": "0xe86d2",
+      "creationFlags": {
+       "readonly": true,
+       "permissionlessExtension": true,
+       "raw": 3
+      },
+      "payload_bytes": 88
+     }
+    },
+    {
+     "utc": "2026-10-09T12:08:52+00:00",
+     "method": "arkiv_getEntity",
+     "params": [
+      "0x72818b7096c091907964b3ad44476a7630bba995cd1b005c59ae5a56f9a0d927",
+      "0x55344"
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=566, reset=30"
+     },
+     "error": {
+      "code": -32602,
+      "message": "invalid block param: ErrorObject { code: InvalidParams, message: \"Invalid params\", data: Some(RawValue(\"invalid type: string \\\"0x55344\\\", expected u64 at line 1 column 10\")) }"
+     }
+    },
+    {
+     "utc": "2026-10-09T12:08:52+00:00",
+     "method": "arkiv_getEntity",
+     "params": [
+      "0x72818b7096c091907964b3ad44476a7630bba995cd1b005c59ae5a56f9a0d927",
+      {
+       "select": {
+        "owner": true
+       }
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=558, reset=30"
+     },
+     "error": {
+      "code": -32602,
+      "message": "invalid block param: ErrorObject { code: InvalidParams, message: \"Invalid params\", data: Some(RawValue(\"invalid type: map, expected u64 at line 1 column 1\")) }"
+     }
+    },
+    {
+     "utc": "2026-10-09T12:08:53+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "$key = key(0x72818b7096c091907964b3ad44476a7630bba995cd1b005c59ae5a56f9a0d927)",
+      {
+       "atBlock": 348996,
+       "limit": 1
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=573, reset=29"
+     },
+     "error": {
+      "code": -32602,
+      "message": "invalid options param: ErrorObject { code: InvalidParams, message: \"Invalid params\", data: Some(RawValue(\"invalid type: integer `348996`, expected a string at line 1 column 19\")) }"
+     }
+    }
+   ]
+  },
+  {
+   "id": "updated_at_queryable",
+   "kind": "friction",
+   "title": "$updatedAt: fundamentals says queryable, node says not",
+   "status": "OBSERVED",
+   "summary": "$updatedAt >= u64(0): error -32002: $updatedAt is not queryable \u2014 it is returned by projections only",
+   "utc": "2026-10-09T12:08:53+00:00",
+   "head": 348996,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:08:53+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "$updatedAt >= u64(0)",
+      {
+       "limit": 1
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=565, reset=29"
+     },
+     "error": {
+      "code": -32002,
+      "message": "$updatedAt is not queryable \u2014 it is returned by projections only",
+      "data": {
+       "message": "$updatedAt is not queryable \u2014 it is returned by projections only",
+       "position": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "unix_seconds_expiry",
+   "kind": "friction",
+   "title": "Unix seconds in expiresAt accepted without a bound",
+   "status": "OBSERVED",
+   "summary": "create with expiresAt=1791634134 (unix time of now+1 day) at head 348998: ok 85920 -> lives ~114 years at 2 s/block",
+   "utc": "2026-10-09T12:08:54+00:00",
+   "head": 348998,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:08:54+00:00",
+     "method": "eth_blockNumber",
+     "params": [],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=557, reset=28"
+     },
+     "result": "0x55346"
+    },
+    {
+     "utc": "2026-10-09T12:08:54+00:00",
+     "method": "eth_estimateGas",
+     "params": [
+      {
+       "from": "0x000000000000000000000000000000000000beef",
+       "to": "0x4400000000000000000000000000000000000044",
+       "data": "0x496500440000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a3000000000000000000000000000000000000000000000000000000006aca2ad60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000206b696e64000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000017800000000000000000000000000000000000000000000000000000000000000"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=572, reset=28"
+     },
+     "result": "0x14fa0"
+    }
+   ]
+  },
+  {
+   "id": "equal_expiry_extend",
+   "kind": "friction",
+   "title": "Extend to the same expiry: docs say revert, node accepts",
+   "status": "OBSERVED",
+   "summary": "create expiresAt=349998 then extend to the same 349998 in one batch: ok 95960",
+   "utc": "2026-10-09T12:08:55+00:00",
+   "head": 348998,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:08:55+00:00",
+     "method": "eth_blockNumber",
+     "params": [],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=564, reset=27"
+     },
+     "result": "0x55346"
+    },
+    {
+     "utc": "2026-10-09T12:08:55+00:00",
+     "method": "eth_call",
+     "params": [
+      {
+       "to": "0x4400000000000000000000000000000000000044",
+       "data": "0x36917bfd000000000000000000000000000000000000000000000000000000000000beef"
+      },
+      "latest"
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=556, reset=27"
+     },
+     "result": 0
+    },
+    {
+     "utc": "2026-10-09T12:08:55+00:00",
+     "method": "eth_estimateGas",
+     "params": [
+      {
+       "from": "0x000000000000000000000000000000000000beef",
+       "to": "0x4400000000000000000000000000000000000044",
+       "data": "0x4965004400000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000002400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a4000000000000000000000000000000000000000000000000000000000005572e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000206b696e64000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000017800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000060b3f8583797875b25f66464128376c4d1b72b7b8fee7ddfe2e54e7fc4b9854275000000000000000000000000000000000000000000000000000000000005572e0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=571, reset=26"
+     },
+     "result": "0x176d8"
+    }
+   ]
+  },
+  {
+   "id": "expiry_has_no_event",
+   "kind": "documented",
+   "title": "Expiry emits no event; reads hide the entity at expiresAt",
+   "status": "PASS",
+   "summary": "entity 0x230b...694b expired at block 348989 (head 348999): getEntity at 348988 -> entity, at 348989 -> null, now -> null; its logs: [('EntityCreated', 348089)] (none at or after the expiry block)",
+   "utc": "2026-10-09T12:08:56+00:00",
+   "head": 348999,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:08:56+00:00",
+     "method": "eth_blockNumber",
+     "params": [],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=563, reset=26"
+     },
+     "result": "0x55347"
+    },
+    {
+     "utc": "2026-10-09T12:08:56+00:00",
+     "method": "arkiv_query",
+     "params": [
+      "$expiresAt <= u64(348989)",
+      {
+       "atBlock": "0x5521b",
+       "limit": 5,
+       "select": {
+        "key": true,
+        "owner": true,
+        "createdAt": true,
+        "expiresAt": true
+       }
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "arkiv-cost": "100",
+      "ratelimit": "limit=600, remaining=555, reset=26"
+     },
+     "result": {
+      "blockNumber": "0x5521b",
+      "rows": 5,
+      "cursor": "b64:YXZuAzql6GYAAAAAAAdbwA",
+      "first_row": {
+       "key": "0x230b8f62942aa1359cc0fd6bd3c6e0bcc61ca6a9f407ef508bf27ec10403694b",
+       "owner": "0x679b5ab1cd4b488d73025d0d72d4017fa2d97b59",
+       "createdAt": "0x54fb9",
+       "expiresAt": "0x5533d"
+      }
+     }
+    },
+    {
+     "utc": "2026-10-09T12:09:07+00:00",
+     "method": "eth_getLogs",
+     "params": [
+      {
+       "address": "0x4400000000000000000000000000000000000044",
+       "topics": [
+        null,
+        [
+         "0x230b8f62942aa1359cc0fd6bd3c6e0bcc61ca6a9f407ef508bf27ec10403694b",
+         "0x7405d80a2e0c911f7c3c28fad0b14b51e660feb67418c7cd1671c473f9644303",
+         "0x1efefe3455fe32a797863da9ac539cc4434164d933886968938253a7f9f4aebd",
+         "0xe56f6f65ff4d6860f8a891ba97281f869bfb4fba2ca2fc28f31c7e85f8cdc805",
+         "0x742319864c286b490698acc8eeed0ddac89c9394a5ee55848309503191482738"
+        ]
+       ],
+       "fromBlock": "0x54fb5",
+       "toBlock": "0x55347"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=554, reset=15"
+     },
+     "result": [
+      {
+       "event": "EntityCreated",
+       "key": "0x742319864c286b490698acc8eeed0ddac89c9394a5ee55848309503191482738",
+       "block": 348085
+      },
+      {
+       "event": "EntityCreated",
+       "key": "0xe56f6f65ff4d6860f8a891ba97281f869bfb4fba2ca2fc28f31c7e85f8cdc805",
+       "block": 348086
+      },
+      {
+       "event": "EntityCreated",
+       "key": "0x1efefe3455fe32a797863da9ac539cc4434164d933886968938253a7f9f4aebd",
+       "block": 348087
+      },
+      {
+       "event": "EntityCreated",
+       "key": "0x7405d80a2e0c911f7c3c28fad0b14b51e660feb67418c7cd1671c473f9644303",
+       "block": 348088
+      },
+      {
+       "event": "EntityCreated",
+       "key": "0x230b8f62942aa1359cc0fd6bd3c6e0bcc61ca6a9f407ef508bf27ec10403694b",
+       "block": 348089
+      }
+     ]
+    },
+    {
+     "utc": "2026-10-09T12:09:07+00:00",
+     "method": "arkiv_getEntity",
+     "params": [
+      "0x230b8f62942aa1359cc0fd6bd3c6e0bcc61ca6a9f407ef508bf27ec10403694b",
+      348988
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=538, reset=15"
+     },
+     "result": {
+      "key": "0x230b8f62942aa1359cc0fd6bd3c6e0bcc61ca6a9f407ef508bf27ec10403694b",
+      "owner": "0x679b5ab1cd4b488d73025d0d72d4017fa2d97b59",
+      "creator": "0x679b5ab1cd4b488d73025d0d72d4017fa2d97b59",
+      "createdAt": "0x54fb9",
+      "expiresAt": "0x5533d",
+      "creationFlags": {
+       "readonly": false,
+       "permissionlessExtension": false,
+       "raw": 0
+      },
+      "payload_bytes": 256
+     }
+    },
+    {
+     "utc": "2026-10-09T12:09:07+00:00",
+     "method": "arkiv_getEntity",
+     "params": [
+      "0x230b8f62942aa1359cc0fd6bd3c6e0bcc61ca6a9f407ef508bf27ec10403694b",
+      348989
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=522, reset=14"
+     },
+     "result": null
+    },
+    {
+     "utc": "2026-10-09T12:09:08+00:00",
+     "method": "arkiv_getEntity",
+     "params": [
+      "0x230b8f62942aa1359cc0fd6bd3c6e0bcc61ca6a9f407ef508bf27ec10403694b"
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=553, reset=14"
+     },
+     "result": null
+    }
+   ]
+  },
+  {
+   "id": "expired_entity_ops",
+   "kind": "friction",
+   "title": "Delete of an expired entity is accepted",
+   "status": "OBSERVED",
+   "summary": "as its owner 0x679b...7b59, 10 blocks after expiry: delete -> ok 24849; extend -> revert EntityExpired(0x230b...694b, 348989)",
+   "utc": "2026-10-09T12:09:08+00:00",
+   "head": 348999,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:09:08+00:00",
+     "method": "eth_estimateGas",
+     "params": [
+      {
+       "from": "0x679b5ab1cd4b488d73025d0d72d4017fa2d97b59",
+       "to": "0x4400000000000000000000000000000000000044",
+       "data": "0x49650044000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000020230b8f62942aa1359cc0fd6bd3c6e0bcc61ca6a9f407ef508bf27ec10403694b"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=537, reset=14"
+     },
+     "result": "0x6111"
+    },
+    {
+     "utc": "2026-10-09T12:09:09+00:00",
+     "method": "eth_estimateGas",
+     "params": [
+      {
+       "from": "0x679b5ab1cd4b488d73025d0d72d4017fa2d97b59",
+       "to": "0x4400000000000000000000000000000000000044",
+       "data": "0x49650044000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000060230b8f62942aa1359cc0fd6bd3c6e0bcc61ca6a9f407ef508bf27ec10403694b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=521, reset=13"
+     },
+     "error": {
+      "code": 3,
+      "message": "execution reverted",
+      "data": "0x2411cf56230b8f62942aa1359cc0fd6bd3c6e0bcc61ca6a9f407ef508bf27ec10403694b000000000000000000000000000000000000000000000000000000000005533d"
+     },
+     "revert": "EntityExpired(0x230b...694b, 348989)"
+    }
+   ]
+  },
+  {
+   "id": "readonly_flag",
+   "kind": "documented",
+   "title": "Read-only blocks patch, not delete",
+   "status": "PASS",
+   "summary": "entityNonce(beef)=0; [create readonly, delete] -> ok 95960; [create readonly, patch] -> revert ReadOnlyEntity(0x4134...2673)",
+   "utc": "2026-10-09T12:09:09+00:00",
+   "head": 348999,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:09:09+00:00",
+     "method": "eth_call",
+     "params": [
+      {
+       "to": "0x4400000000000000000000000000000000000044",
+       "data": "0x36917bfd000000000000000000000000000000000000000000000000000000000000beef"
+      },
+      "latest"
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=552, reset=13"
+     },
+     "result": 0
+    },
+    {
+     "utc": "2026-10-09T12:09:09+00:00",
+     "method": "eth_estimateGas",
+     "params": [
+      {
+       "from": "0x000000000000000000000000000000000000beef",
+       "to": "0x4400000000000000000000000000000000000044",
+       "data": "0x4965004400000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000002400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000206b696e640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000178000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000204134b9a34b1906c3a467402452d12d1ad5a19915e6eec3bff664bcbd10f82673"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=536, reset=12"
+     },
+     "result": "0x176d8"
+    },
+    {
+     "utc": "2026-10-09T12:09:10+00:00",
+     "method": "eth_estimateGas",
+     "params": [
+      {
+       "from": "0x000000000000000000000000000000000000beef",
+       "to": "0x4400000000000000000000000000000000000044",
+       "data": "0x4965004400000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000002400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000206b696e6400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000001780000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000204134b9a34b1906c3a467402452d12d1ad5a19915e6eec3bff664bcbd10f826730000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000206b696e64000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000017900000000000000000000000000000000000000000000000000000000000000"
+      }
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=520, reset=11"
+     },
+     "error": {
+      "code": 3,
+      "message": "execution reverted",
+      "data": "0xd858a8244134b9a34b1906c3a467402452d12d1ad5a19915e6eec3bff664bcbd10f82673"
+     },
+     "revert": "ReadOnlyEntity(0x4134...2673)"
+    }
+   ]
+  },
+  {
+   "id": "permissionless_extend",
+   "kind": "documented",
+   "title": "Third-party extension; event owner topic is the entity owner",
+   "status": "PASS",
+   "summary": "tx from 0x730e78fc5afb38689fd6b2730dc1e8b59911f71e (not the creator 0x65ebe97db5cd7160bf9a2aa7818241f9e5768a92) extended entity 0x7281...d927 to block 952018; event owner topic = 0x000000000000000000000000000000000000dead",
+   "utc": "2026-10-09T12:09:11+00:00",
+   "head": 348999,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:09:11+00:00",
+     "method": "eth_getTransactionByHash",
+     "params": [
+      "0x6b51f07f4279d1a9a692495a130d7937ddef9bff7089d8e0ffda699deb963ea1"
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=551, reset=11"
+     },
+     "result": {
+      "from": "0x730e78fc5afb38689fd6b2730dc1e8b59911f71e",
+      "to": "0x4400000000000000000000000000000000000044",
+      "blockNumber": "0x54c52",
+      "input_bytes": 292,
+      "input_head": "0x49650044"
+     }
+    },
+    {
+     "utc": "2026-10-09T12:09:11+00:00",
+     "method": "eth_getTransactionReceipt",
+     "params": [
+      "0x6b51f07f4279d1a9a692495a130d7937ddef9bff7089d8e0ffda699deb963ea1"
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=535, reset=10"
+     },
+     "result": {
+      "status": "0x1",
+      "blockNumber": "0x54c52",
+      "gasUsed": "0x627a",
+      "from": "0x730e78fc5afb38689fd6b2730dc1e8b59911f71e",
+      "logs": [
+       {
+        "event": "ExpiryExtended",
+        "key": "0x72818b7096c091907964b3ad44476a7630bba995cd1b005c59ae5a56f9a0d927",
+        "topic2_address": "0x000000000000000000000000000000000000dead",
+        "data_words": [
+         952018
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "calldata_matches_docs",
+   "kind": "documented",
+   "title": "execute() calldata from eth_abi equals the docs example",
+   "status": "PASS",
+   "summary": "1188-byte calldata from eth_abi 6.0.0 equals the docs' full calldata",
+   "utc": "2026-10-09T12:09:12+00:00",
+   "head": 348999,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:09:12+00:00",
+     "method": "(offline) writer.arkiv.execute_calldata",
+     "params": "docs example: salt 0x1234, minLifetime 1296000, category=str example, count=u64 100, $contentType application/json, $payload {\"message\":\"Hello from Arkiv\"}",
+     "result": {
+      "bytes": 1188,
+      "equal_to_docs": true,
+      "sha256": "46f316264aa05639b7a0e565bbbede46c9b0ee62f40eb6c94ce7c4dff32700a9"
+     }
+    }
+   ]
+  },
+  {
+   "id": "key_prediction",
+   "kind": "documented",
+   "title": "Entity key formula reproduces a live key",
+   "status": "PASS",
+   "summary": "tx in block 347215: salt 0x91e25ba82feac4fac064c920223a2836, entityNonce(sender) at block 347214 = 0, predicted 0x7281...d927, EntityCreated matches",
+   "utc": "2026-10-09T12:09:12+00:00",
+   "head": 348999,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:09:12+00:00",
+     "method": "eth_getTransactionByHash",
+     "params": [
+      "0x744ddd5e8089f47c1025956cd3b547928b4591a681f22ab85276cfa670988c59"
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=519, reset=10"
+     },
+     "result": {
+      "from": "0x65ebe97db5cd7160bf9a2aa7818241f9e5768a92",
+      "to": "0x4400000000000000000000000000000000000044",
+      "blockNumber": "0x54c4f",
+      "input_bytes": 1636,
+      "input_head": "0x49650044"
+     }
+    },
+    {
+     "utc": "2026-10-09T12:09:12+00:00",
+     "method": "eth_getTransactionReceipt",
+     "params": [
+      "0x744ddd5e8089f47c1025956cd3b547928b4591a681f22ab85276cfa670988c59"
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=550, reset=9"
+     },
+     "result": {
+      "status": "0x1",
+      "blockNumber": "0x54c4f",
+      "gasUsed": "0x1c7b8",
+      "from": "0x65ebe97db5cd7160bf9a2aa7818241f9e5768a92",
+      "logs": [
+       {
+        "event": "EntityCreated",
+        "key": "0x72818b7096c091907964b3ad44476a7630bba995cd1b005c59ae5a56f9a0d927",
+        "topic2_address": "0x65ebe97db5cd7160bf9a2aa7818241f9e5768a92",
+        "data_words": [
+         649615,
+         3
+        ]
+       },
+       {
+        "event": "OwnershipTransferred",
+        "key": "0x72818b7096c091907964b3ad44476a7630bba995cd1b005c59ae5a56f9a0d927",
+        "topic2_address": "0x65ebe97db5cd7160bf9a2aa7818241f9e5768a92",
+        "data_words": []
+       }
+      ]
+     }
+    },
+    {
+     "utc": "2026-10-09T12:09:13+00:00",
+     "method": "eth_call",
+     "params": [
+      {
+       "to": "0x4400000000000000000000000000000000000044",
+       "data": "0x36917bfd00000000000000000000000065ebe97db5cd7160bf9a2aa7818241f9e5768a92"
+      },
+      "0x54c4e"
+     ],
+     "http": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost",
+      "ratelimit": "limit=600, remaining=534, reset=9"
+     },
+     "result": 0
+    }
+   ]
+  },
+  {
+   "id": "browser_access",
+   "kind": "documented",
+   "title": "CORS and WebSocket subscriptions from a web origin",
+   "status": "PASS",
+   "summary": "CORS preflight 204, allow-origin *; WSS with Origin https://example.github.io: 1 newHeads and 2 logs in 3 s",
+   "utc": "2026-10-09T12:09:13+00:00",
+   "head": 348999,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:09:14+00:00",
+     "method": "HTTP OPTIONS (CORS preflight)",
+     "params": {
+      "Origin": "https://example.github.io"
+     },
+     "http": 204,
+     "headers": {
+      "access-control-allow-headers": "Content-Type, Authorization, X-Api-Key",
+      "access-control-allow-methods": "POST, OPTIONS",
+      "access-control-allow-origin": "*",
+      "access-control-max-age": "86400"
+     }
+    },
+    {
+     "utc": "2026-10-09T12:09:14+00:00",
+     "method": "WSS eth_subscribe newHeads + logs(address=0x44..44)",
+     "params": {
+      "url": "wss://rpc.tiramisu.db-chain.testnet.arkiv.network",
+      "Origin": "https://example.github.io"
+     },
+     "subscribe_replies": [
+      {
+       "jsonrpc": "2.0",
+       "id": 1,
+       "result": "0x79d88fe333b36a7f35533be49ae62a1"
+      },
+      {
+       "jsonrpc": "2.0",
+       "id": 2,
+       "result": "0x25bf25a9e310593de06e0fbdac81bf9c"
+      }
+     ],
+     "first": {
+      "logs": {
+       "event": "EntityCreated",
+       "block": "0x55351"
+      },
+      "newHeads": {
+       "number": "0x55351"
+      }
+     },
+     "received": {
+      "newHeads": 1,
+      "logs": 2
+     },
+     "seconds": 3.0
+    }
+   ]
+  },
+  {
+   "id": "default_user_agent",
+   "kind": "friction",
+   "title": "Python's default urllib User-Agent is refused with HTTP 403",
+   "status": "OBSERVED",
+   "summary": "same eth_blockNumber body: User-Agent Python-urllib/3.12 -> HTTP 403 'error code: 1010'; User-Agent door-ledger-friction-probe/1 -> HTTP 200",
+   "utc": "2026-10-09T12:09:17+00:00",
+   "head": 348999,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:09:17+00:00",
+     "method": "eth_blockNumber (plain HTTP POST)",
+     "params": {
+      "User-Agent": "Python-urllib/3.12"
+     },
+     "http": 403,
+     "headers": {
+      "server": "cloudflare"
+     },
+     "body": "error code: 1010"
+    },
+    {
+     "utc": "2026-10-09T12:09:17+00:00",
+     "method": "eth_blockNumber (plain HTTP POST)",
+     "params": {
+      "User-Agent": "door-ledger-friction-probe/1"
+     },
+     "http": 200,
+     "headers": {
+      "server": "cloudflare"
+     },
+     "body": "{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":\"0x55351\"}"
+    }
+   ]
+  },
+  {
+   "id": "rate_headers",
+   "kind": "friction",
+   "title": "Public RPC cost headers versus the documented 'default rate limit'",
+   "status": "OBSERVED",
+   "summary": "arkiv-cost header only on: arkiv_query=100; ratelimit limit=600 on every method, remaining went [582, 589, 585, 581, 588, 584, 580, 587, 583, 579, 578, 570, 562, 577, 569, 561, 576, 568, 560, 575, 567, 559, 574, 566, 558, 573, 565, 557, 572, 564, 556, 571, 563, 555, 554, 538, 522, 553, 537, 521, 552, 536, 520, 551, 535, 519, 550, 534]; 52 requests, 15 arkiv_query; no 429",
+   "utc": "2026-10-09T12:09:17+00:00",
+   "head": 348999,
+   "node_version": "reth/v2.5.0-189c0df/x86_64-unknown-linux-gnu",
+   "calls": [
+    {
+     "utc": "2026-10-09T12:09:17+00:00",
+     "method": "(aggregate of this run's response headers)",
+     "result": {
+      "per_method": {
+       "web3_clientVersion": {
+        "calls": 1,
+        "arkiv-cost": [
+         "absent"
+        ],
+        "ratelimit_first_last": [
+         "limit=600, remaining=582, reset=46",
+         "limit=600, remaining=582, reset=46"
+        ]
+       },
+       "eth_chainId": {
+        "calls": 1,
+        "arkiv-cost": [
+         "absent"
+        ],
+        "ratelimit_first_last": [
+         "limit=600, remaining=589, reset=44",
+         "limit=600, remaining=589, reset=44"
+        ]
+       },
+       "eth_blockNumber": {
+        "calls": 6,
+        "arkiv-cost": [
+         "absent"
+        ],
+        "ratelimit_first_last": [
+         "limit=600, remaining=585, reset=44",
+         "limit=600, remaining=563, reset=26"
+        ]
+       },
+       "arkiv_query": {
+        "calls": 15,
+        "arkiv-cost": [
+         "100"
+        ],
+        "ratelimit_first_last": [
+         "limit=600, remaining=581, reset=43",
+         "limit=600, remaining=555, reset=26"
+        ]
+       },
+       "eth_estimateGas": {
+        "calls": 9,
+        "arkiv-cost": [
+         "absent"
+        ],
+        "ratelimit_first_last": [
+         "limit=600, remaining=579, reset=39",
+         "limit=600, remaining=520, reset=11"
+        ]
+       },
+       "arkiv_getEntityCount": {
+        "calls": 2,
+        "arkiv-cost": [
+         "absent"
+        ],
+        "ratelimit_first_last": [
+         "limit=600, remaining=567, reset=31",
+         "limit=600, remaining=559, reset=31"
+        ]
+       },
+       "arkiv_getEntity": {
+        "calls": 6,
+        "arkiv-cost": [
+         "absent"
+        ],
+        "ratelimit_first_last": [
+         "limit=600, remaining=574, reset=30",
+         "limit=600, remaining=553, reset=14"
+        ]
+       },
+       "eth_call": {
+        "calls": 3,
+        "arkiv-cost": [
+         "absent"
+        ],
+        "ratelimit_first_last": [
+         "limit=600, remaining=556, reset=27",
+         "limit=600, remaining=534, reset=9"
+        ]
+       },
+       "eth_getLogs": {
+        "calls": 1,
+        "arkiv-cost": [
+         "absent"
+        ],
+        "ratelimit_first_last": [
+         "limit=600, remaining=554, reset=15",
+         "limit=600, remaining=554, reset=15"
+        ]
+       },
+       "eth_getTransactionByHash": {
+        "calls": 2,
+        "arkiv-cost": [
+         "absent"
+        ],
+        "ratelimit_first_last": [
+         "limit=600, remaining=551, reset=11",
+         "limit=600, remaining=519, reset=10"
+        ]
+       },
+       "eth_getTransactionReceipt": {
+        "calls": 2,
+        "arkiv-cost": [
+         "absent"
+        ],
+        "ratelimit_first_last": [
+         "limit=600, remaining=535, reset=10",
+         "limit=600, remaining=550, reset=9"
+        ]
+       }
+      },
+      "ratelimit_limits_seen": [
+       "limit=600"
+      ],
+      "remaining_sequence": [
+       582,
+       589,
+       585,
+       581,
+       588,
+       584,
+       580,
+       587,
+       583,
+       579,
+       578,
+       570,
+       562,
+       577,
+       569,
+       561,
+       576,
+       568,
+       560,
+       575,
+       567,
+       559,
+       574,
+       566,
+       558,
+       573,
+       565,
+       557,
+       572,
+       564,
+       556,
+       571,
+       563,
+       555,
+       554,
+       538,
+       522,
+       553,
+       537,
+       521,
+       552,
+       536,
+       520,
+       551,
+       535,
+       519,
+       550,
+       534
+      ],
+      "access-control-expose-headers": "RateLimit, Retry-After, Link, Arkiv-Quota-Used-Percent, Arkiv-Cost"
+     }
+    }
+   ]
+  }
+ ]
+}
