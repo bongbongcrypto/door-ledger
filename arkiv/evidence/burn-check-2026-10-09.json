@@ -1,0 +1,48 @@
+{
+ "utc": "2026-10-09T11:09:20+00:00",
+ "chain_id": 7738577,
+ "creator": "0x65EbE97db5Cd7160bf9a2aa7818241f9E5768A92",
+ "burn": "0x000000000000000000000000000000000000dEaD",
+ "third_party": "0x730E78fc5afB38689fd6b2730DC1E8b59911f71E",
+ "steps": [
+  {
+   "step": "simulate create+transfer",
+   "gas": 117710,
+   "predicted_key": "0x72818b7096c091907964b3ad44476a7630bba995cd1b005c59ae5a56f9a0d927"
+  },
+  {
+   "step": "create+transfer",
+   "tx": "0x744ddd5e8089f47c1025956cd3b547928b4591a681f22ab85276cfa670988c59",
+   "block": 347215,
+   "gas_used": 116664,
+   "created": [
+    "0x72818b7096c091907964b3ad44476a7630bba995cd1b005c59ae5a56f9a0d927"
+   ]
+  },
+  {
+   "step": "read back",
+   "owner": "0x000000000000000000000000000000000000dead",
+   "creator": "0x65ebe97db5cd7160bf9a2aa7818241f9e5768a92",
+   "expiresAt": "0x9e98f",
+   "ok": true
+  },
+  {
+   "step": "creator deletes",
+   "result": "eth_estimateGas reverted: NotOwner (0xa3221ef272818b7096c091907964b3ad44476a7630bba995cd1b005c59ae5a56f9a0d92700000000000000000000000065ebe97db5cd7160bf9a2aa7818241f9e5768a92000000000000000000000000000000000000000000000000000000000000dead)",
+   "ok": true
+  },
+  {
+   "step": "creator transfers back",
+   "result": "eth_estimateGas reverted: NotOwner (0xa3221ef272818b7096c091907964b3ad44476a7630bba995cd1b005c59ae5a56f9a0d92700000000000000000000000065ebe97db5cd7160bf9a2aa7818241f9e5768a92000000000000000000000000000000000000000000000000000000000000dead)",
+   "ok": true
+  },
+  {
+   "step": "third party extends",
+   "tx": "0x6b51f07f4279d1a9a692495a130d7937ddef9bff7089d8e0ffda699deb963ea1",
+   "expiresAt_before": 649615,
+   "expiresAt_after": 952018,
+   "ok": true
+  }
+ ],
+ "passed": true
+}
