@@ -1,0 +1,44 @@
+# Secrets
+.env*
+!.env.example
+.alert.env
+wallet.json
+*.key
+*.pem
+id_rsa*
+*.mnemonic
+*-session-cookie*
+
+# Binaries
+*.exe
+*.bin
+*.dll
+*.so
+
+# Dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Logs / cache / local state
+*.log
+logs/
+.cache/
+state/
+
+# IDE / agents
+.vscode/
+.idea/
+*.swp
+.codex/
+.gemini/
+.cursor/
+.aider*
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+.last-sync
