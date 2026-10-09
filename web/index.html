@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Manrope:wght@400;500&display=swap">
-<link rel="stylesheet" href="styles.css?v=5">
+<link rel="stylesheet" href="styles.css?v=6">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='2' y='1' width='12' height='14' fill='none' stroke='%23151515' stroke-width='1.5'/%3E%3Cpath d='M5 5h6M5 8h6M5 11h3' stroke='%2329735c' stroke-width='1.5'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -23,7 +23,7 @@
       <a href="#history">Ledger</a>
       <a href="#verify">Verify</a>
     </nav>
-    <p class="chainline" id="chainline" aria-live="polite"><span class="dot" id="livedot"></span><span id="chaintext">Connecting to Arkiv</span></p>
+    <p class="chainline" id="chainline"><span class="dot" id="livedot"></span><span id="chaintext">Connecting to Arkiv</span></p>
   </div>
 </header>
 
@@ -55,7 +55,7 @@
       <p class="hint">A row stays here only while a watcher keeps renewing it. If the watcher stops, the row expires on its own.</p>
     </div>
     <div class="table-wrap">
-      <table class="ledger" id="open-table">
+      <table class="ledger" id="open-table" aria-labelledby="open-h">
         <thead><tr><th scope="col">Venue</th><th scope="col">Network</th><th scope="col">Side</th><th scope="col">First seen shut</th><th scope="col">Assets shut</th><th scope="col">Seen by</th><th scope="col">Lapses unless renewed</th></tr></thead>
         <tbody id="open-body"><tr class="skeleton"><td colspan="7"><span></span><span></span><span></span></td></tr></tbody>
       </table>
@@ -68,7 +68,7 @@
       <p class="hint">Each watcher posts a pulse per venue every hour. A missing pulse means that watcher has stopped reading that venue, so an empty "Open now" is never mistaken for a quiet market.</p>
     </div>
     <div class="table-wrap">
-      <table class="ledger" id="watch-table">
+      <table class="ledger" id="watch-table" aria-labelledby="watchers-h">
         <thead><tr><th scope="col">Venue</th><th scope="col">Watcher</th><th scope="col">Last pulse</th><th scope="col">Reads since last pulse</th><th scope="col">Networks judged</th><th scope="col">Halted at last read</th></tr></thead>
         <tbody id="watch-body"><tr class="skeleton"><td colspan="6"><span></span><span></span><span></span></td></tr></tbody>
       </table>
@@ -88,7 +88,7 @@
       <label>Started before <input type="date" id="f-to"></label>
     </form>
     <div class="table-wrap">
-      <table class="ledger" id="hist-table">
+      <table class="ledger" id="hist-table" aria-labelledby="history-h">
         <thead><tr><th scope="col">Venue</th><th scope="col">Network</th><th scope="col">Side</th><th scope="col">Started (UTC)</th><th scope="col">Reopened (UTC)</th><th scope="col">Lasted</th><th scope="col">Written by</th><th scope="col">Record</th></tr></thead>
         <tbody id="hist-body"><tr class="skeleton"><td colspan="8"><span></span><span></span><span></span></td></tr></tbody>
       </table>
@@ -141,7 +141,7 @@
     <p id="privacy" class="fine">Privacy: this page sets no cookies and stores nothing. Your browser talks only to the public Arkiv node and to Google Fonts.</p>
   </div>
 </footer>
-<script src="config.js?v=5"></script>
-<script src="app.js?v=5"></script>
+<script src="config.js?v=6"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>

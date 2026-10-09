@@ -159,7 +159,7 @@
       const first = g.reduce((m, r) => (r.a.t0 < m.a.t0 ? r : m), g[0]);
       const spoofOnly = g.every((r) => !(KNOWN.get(r.creator) || {}).approved);
       const p = first.p || {};
-      const tr = el("tr", { class: "row" + (spoofOnly ? " spoofed" : ""), tabindex: "0", onclick: () => showDetail(first), onkeydown: (e) => { if (e.key === "Enter") showDetail(first); } },
+      const tr = el("tr", { class: "row" + (spoofOnly ? " spoofed" : ""), tabindex: "0", "aria-haspopup": "dialog", onclick: () => showDetail(first), onkeydown: (e) => { if (e.key === "Enter") showDetail(first); } },
         td("Venue", cap(first.a.venue)),
         td("Network", el("span", { class: "num" }, first.a.route), el("span", { class: "sub" }, first.a.net)),
         td("Side", tag(first.a.side + " shut", "open")),
@@ -190,7 +190,7 @@
         const r = latest.get(venue + "|" + w);
         const p = (r && r.p) || {};
         if (r) liveCount.add(w);
-        body.append(el("tr", r ? { class: "row", tabindex: "0", onclick: () => showDetail(r), onkeydown: (e) => { if (e.key === "Enter") showDetail(r); } } : {},
+        body.append(el("tr", r ? { class: "row", tabindex: "0", "aria-haspopup": "dialog", onclick: () => showDetail(r), onkeydown: (e) => { if (e.key === "Enter") showDetail(r); } } : {},
           td("Venue", cap(venue)),
           td("Watcher", creatorTag(w)),
           td("Last pulse", r ? el("span", {}, tag("live", "live"), " ", span(blockAge(r.createdAt)) + " ago") : tag("silent", "silent", "No pulse from this watcher for this venue is alive")),
@@ -207,7 +207,7 @@
     body.replaceChildren();
     for (const r of state.hist) {
       const locked = r.owner === C.burn;
-      body.append(el("tr", { class: "row" + ((KNOWN.get(r.creator) || {}).approved ? "" : " spoofed"), tabindex: "0", onclick: () => showDetail(r), onkeydown: (e) => { if (e.key === "Enter") showDetail(r); } },
+      body.append(el("tr", { class: "row" + ((KNOWN.get(r.creator) || {}).approved ? "" : " spoofed"), tabindex: "0", "aria-haspopup": "dialog", onclick: () => showDetail(r), onkeydown: (e) => { if (e.key === "Enter") showDetail(r); } },
         td("Venue", cap(r.a.venue)),
         td("Network", el("span", { class: "num" }, r.a.route), el("span", { class: "sub" }, r.a.net)),
         td("Side", tag(r.a.side, "ended")),
