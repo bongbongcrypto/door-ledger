@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Door Ledger</title>
+<meta name="description" content="A public record of exchange deposit and withdrawal halts, written to Arkiv by independent watchers and read straight from the chain.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://rpc.tiramisu.db-chain.testnet.arkiv.network wss://rpc.tiramisu.db-chain.testnet.arkiv.network; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Manrope:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='2' y='1' width='12' height='14' fill='none' stroke='%23151515' stroke-width='1.5'/%3E%3Cpath d='M5 5h6M5 8h6M5 11h3' stroke='%2329735c' stroke-width='1.5'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip" href="#open">Skip to the open halts</a>
+<header class="masthead">
+  <div class="wrap masthead-row">
+    <p class="wordmark"><span class="mark" aria-hidden="true"></span>Door Ledger</p>
+    <nav aria-label="Sections">
+      <a href="#open">Open now</a>
+      <a href="#watchers">Watchers</a>
+      <a href="#history">Ledger</a>
+      <a href="#verify">Verify</a>
+    </nav>
+    <p class="chainline" id="chainline" aria-live="polite"><span class="dot" id="livedot"></span><span id="chaintext">Connecting to Arkiv</span></p>
+  </div>
+</header>
+
+<main id="main">
+  <section class="intro wrap">
+    <h1>Exchange deposit and withdrawal halts, on the record.</h1>
+    <p class="lede">When an exchange shuts deposits or withdrawals for a whole network, two independent watchers write it to <a href="https://arkiv.network">Arkiv</a>. This page asks the Arkiv node directly. No Door Ledger server sits between you and the data, and a closed record cannot be edited or deleted, even by the watcher that wrote it.</p>
+    <dl class="summary" id="summary">
+      <div><dt>Open now</dt><dd id="sum-open">&nbsp;</dd></div>
+      <div><dt>Watchers live</dt><dd id="sum-watchers">&nbsp;</dd></div>
+      <div><dt>Closed halts on file</dt><dd id="sum-closed">&nbsp;</dd></div>
+      <div><dt>Venues watched</dt><dd>Binance, Gate, KuCoin, Bithumb</dd></div>
+    </dl>
+    <div class="controls" role="group" aria-label="View controls">
+      <label class="switch"><input type="checkbox" id="approved-only" checked><span class="track" aria-hidden="true"></span><span>Approved watchers only</span></label>
+      <form class="asof" id="asof-form">
+        <label for="asof-input">View the ledger as of block</label>
+        <input id="asof-input" inputmode="numeric" placeholder="block number" autocomplete="off">
+        <button type="submit" class="btn">Go</button>
+        <button type="button" class="btn ghost" id="asof-clear" hidden>Back to live</button>
+      </form>
+    </div>
+    <p class="banner" id="banner" role="status" hidden></p>
+  </section>
+
+  <section id="open" class="wrap block" aria-labelledby="open-h">
+    <div class="block-head">
+      <h2 id="open-h">Open now</h2>
+      <p class="hint">A row stays here only while a watcher keeps renewing it. If the watcher stops, the row expires on its own.</p>
+    </div>
+    <div class="table-wrap">
+      <table class="ledger" id="open-table">
+        <thead><tr><th scope="col">Venue</th><th scope="col">Network</th><th scope="col">Side</th><th scope="col">Shut since</th><th scope="col">Assets shut</th><th scope="col">Seen by</th><th scope="col">Renewed until</th></tr></thead>
+        <tbody id="open-body"><tr class="skeleton"><td colspan="7"><span></span><span></span><span></span></td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="watchers" class="wrap block" aria-labelledby="watchers-h">
+    <div class="block-head">
+      <h2 id="watchers-h">Watchers</h2>
+      <p class="hint">Each watcher posts a pulse per venue every hour. A missing pulse means that watcher has stopped reading that venue, so an empty "Open now" is never mistaken for a quiet market.</p>
+    </div>
+    <div class="table-wrap">
+      <table class="ledger" id="watch-table">
+        <thead><tr><th scope="col">Venue</th><th scope="col">Watcher</th><th scope="col">Last pulse</th><th scope="col">Reads since last pulse</th><th scope="col">Networks judged</th><th scope="col">Halted at last read</th></tr></thead>
+        <tbody id="watch-body"><tr class="skeleton"><td colspan="6"><span></span><span></span><span></span></td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="history" class="wrap block" aria-labelledby="history-h">
+    <div class="block-head">
+      <h2 id="history-h">Ledger of closed halts</h2>
+      <p class="hint">Written once when a watcher sees the network reopen, then handed to an address nobody controls. Anyone can extend a record's life; nobody can change it.</p>
+    </div>
+    <form class="filters" id="filters" aria-label="Filter the ledger">
+      <label>Venue <select id="f-venue"><option value="">All</option><option>binance</option><option>gate</option><option>kucoin</option><option>bithumb</option></select></label>
+      <label>Side <select id="f-side"><option value="">Both</option><option>deposit</option><option>withdraw</option></select></label>
+      <label>Lasted at least <select id="f-dur"><option value="0">Any time</option><option value="3600">1 hour</option><option value="21600">6 hours</option><option value="86400">24 hours</option></select></label>
+      <label>Started after <input type="date" id="f-from"></label>
+      <label>Started before <input type="date" id="f-to"></label>
+    </form>
+    <div class="table-wrap">
+      <table class="ledger" id="hist-table">
+        <thead><tr><th scope="col">Venue</th><th scope="col">Network</th><th scope="col">Side</th><th scope="col">Started (UTC)</th><th scope="col">Reopened (UTC)</th><th scope="col">Lasted</th><th scope="col">Written by</th><th scope="col">Record</th></tr></thead>
+        <tbody id="hist-body"><tr class="skeleton"><td colspan="8"><span></span><span></span><span></span></td></tr></tbody>
+      </table>
+    </div>
+    <div class="pager"><button type="button" class="btn ghost" id="more" hidden>Older records</button><span class="hint" id="hist-note"></span></div>
+  </section>
+
+  <section id="verify" class="wrap block" aria-labelledby="verify-h">
+    <div class="block-head">
+      <h2 id="verify-h">Verify it yourself</h2>
+      <p class="hint">These are the exact queries behind the tables above, pinned to the block they were answered at. Paste the command into a terminal and you get the same rows from the same public node.</p>
+    </div>
+    <div class="repro">
+      <div class="repro-item">
+        <p class="label">Open halts and watcher pulses</p>
+        <pre id="q-live" tabindex="0"></pre>
+        <button type="button" class="btn ghost copy" data-copy="q-live-curl">Copy curl</button>
+      </div>
+      <div class="repro-item">
+        <p class="label">Ledger page</p>
+        <pre id="q-hist" tabindex="0"></pre>
+        <button type="button" class="btn ghost copy" data-copy="q-hist-curl">Copy curl</button>
+      </div>
+      <details class="curl"><summary>Show the curl commands</summary><pre id="q-live-curl"></pre><pre id="q-hist-curl"></pre></details>
+    </div>
+    <ul class="facts">
+      <li><span class="label">Approved watchers</span> <span id="reporter-list"></span></li>
+      <li><span class="label">Chain</span> Arkiv Tiramisu testnet, chain id 7738577</li>
+      <li><span class="label">Source</span> <a id="repo-link" href="#">code, schema and friction report</a></li>
+    </ul>
+  </section>
+</main>
+
+<dialog id="detail" aria-labelledby="detail-h">
+  <form method="dialog" class="detail-close"><button class="btn ghost" aria-label="Close">Close</button></form>
+  <h2 id="detail-h">Record</h2>
+  <dl id="detail-meta" class="meta"></dl>
+  <p class="label">Payload</p>
+  <pre id="detail-payload"></pre>
+  <p class="label">Fetch only this record</p>
+  <pre id="detail-query"></pre>
+</dialog>
+
+<footer class="foot">
+  <div class="wrap foot-row">
+    <p>Door Ledger is open source under the MIT licence. Data comes from public exchange endpoints and is written by the watchers listed above.</p>
+    <p class="foot-links"><a href="#terms" id="terms-link">Terms</a><a href="#privacy" id="privacy-link">Privacy</a><a id="repo-foot" href="#">Source</a></p>
+    <p id="terms" class="fine">Terms: the records are observations by the listed watchers, provided as is, without warranty. They are not financial advice.</p>
+    <p id="privacy" class="fine">Privacy: this page sets no cookies and stores nothing. Your browser talks only to the public Arkiv node and to Google Fonts.</p>
+  </div>
+</footer>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
