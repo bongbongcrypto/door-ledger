@@ -1,0 +1,37 @@
+# Door Ledger reporter1: long-running watcher that polls the venues and writes
+# leases, episodes and pulses to Arkiv. Installed by deploy/deploy.sh to
+# /etc/systemd/system/door-ledger.service.
+#
+# DOORLEDGER_CODE (the deployed git sha) is not set here: deploy.sh writes it to
+# the drop-in /etc/systemd/system/door-ledger.service.d/code.conf on every deploy.
+
+[Unit]
+Description=Door Ledger reporter1 (exchange door watcher writing to Arkiv)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/bots/door-ledger/app
+# Signing key file (one line ARKIV_SIGNER_HEX=0x...), mode 600, never in the repo.
+Environment=ARKIV_KEY_FILE=/home/ubuntu/.arkiv-reporter1.env
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/home/ubuntu/bots/door-ledger/venv/bin/python -m writer.run --role reporter1 --loop
+Restart=always
+RestartSec=30
+MemoryMax=300M
+StandardOutput=journal
+StandardError=journal
+
+# Hardening: the process holds a key, so it gets a read-only system and can only
+# write its own state directory (state/reporter1.json, created by deploy.sh).
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/ubuntu/bots/door-ledger/app/state
+
+[Install]
+WantedBy=multi-user.target

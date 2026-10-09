@@ -1,0 +1,58 @@
+# reporter2: an independent one-shot watcher on GitHub-hosted runners.
+# Every 30 minutes it polls the venues three times, writes what changed with 4-hour
+# leases, then a heartbeat and (at most hourly) pulses. It keeps no local state: open halts are
+# recovered from its own leases on Arkiv.
+#
+# Needs the repository secret ARKIV_REPORTER2_KEY (the reporter2 private key, 0x-prefixed hex).
+name: reporter2
+
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never two runs at once: one wallet, one transaction in flight.
+concurrency:
+  group: reporter2
+  cancel-in-progress: false
+
+jobs:
+  report:
+    # Forks have no key; do not let their schedules run.
+    if: ${{ !github.event.repository.fork }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies (wheels only)
+        run: |
+          python -m pip install --disable-pip-version-check --only-binary=:all: -r writer/requirements.txt
+
+      - name: Run reporter2 once
+        env:
+          ARKIV_REPORTER2_KEY: ${{ secrets.ARKIV_REPORTER2_KEY }}
+          DOORLEDGER_CODE: ${{ github.sha }}
+        run: |
+          if [ -z "$ARKIV_REPORTER2_KEY" ]; then
+            echo "::error::repository secret ARKIV_REPORTER2_KEY is not set"
+            exit 1
+          fi
+          umask 077
+          export ARKIV_KEY_FILE="$RUNNER_TEMP/arkiv-reporter2.env"
+          printf 'ARKIV_SIGNER_HEX=%s\n' "$ARKIV_REPORTER2_KEY" > "$ARKIV_KEY_FILE"
+          unset ARKIV_REPORTER2_KEY
+          python -m writer.run --role reporter2 --once --spacing 45
+
+      - name: Remove key file
+        if: always()
+        run: rm -f "$RUNNER_TEMP/arkiv-reporter2.env"
