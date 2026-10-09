@@ -3,7 +3,7 @@
   "chain_id": 7738577,
   "reporters": [
     {"address": "0x65EbE97db5Cd7160bf9a2aa7818241f9E5768A92", "label": "Watcher A", "runs_on": "always-on server, polls every 120 s", "approved": true},
-    {"address": "0xC10547DBac4E57b89F0f186d79C3a70b1FE533Fb", "label": "Watcher B", "runs_on": "scheduled GitHub Actions job, every 15 min", "approved": true},
+    {"address": "0xC10547DBac4E57b89F0f186d79C3a70b1FE533Fb", "label": "Watcher B", "runs_on": "scheduled GitHub Actions job, every 30 min", "approved": true},
     {"address": "0x730E78fc5afB38689fd6b2730DC1E8b59911f71E", "label": "Planted spoof", "runs_on": "one-off demo of $creator filtering", "approved": false}
   ]
 }

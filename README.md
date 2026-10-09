@@ -9,7 +9,7 @@
 
 ## Read it without us
 
-The page is a convenience. The records live on Arkiv, so they stay readable if this repository, GitHub Pages and both of our watchers disappear: closed halts are kept 180 days and anyone can extend them. One command against the public node is enough:
+Who would want this history gone: an exchange that would rather its outage record were not compiled, or any operator who can be pressured, bought or simply switched off. That is why no operator holds it here, us included. The page is a convenience; it is plain static files that work from any web server, or from a copy saved to disk. The records live on Arkiv, so they stay readable if this repository, GitHub Pages and both of our watchers disappear: closed halts are kept 180 days and anyone can extend them. One command against the public node is enough:
 
 ```
 curl -s https://rpc.tiramisu.db-chain.testnet.arkiv.network -H 'content-type: application/json' --data-binary @- <<'EOF'

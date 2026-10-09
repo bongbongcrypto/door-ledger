@@ -291,6 +291,7 @@
     const res = await rpc("arkiv_query", [histQuery(), opts(C.historyPageSize, at, more ? state.histCursor : null)]);
     if (!more) { state.hist = []; state.histBlock = num(res.blockNumber); }
     state.hist.push(...(res.data || []).map(decode));
+    state.hist.sort((x, y) => (y.a.t0 || 0) - (x.a.t0 || 0));   // newest first, whatever order the node returns
     state.histCursor = res.cursor || null;
     try {
       state.histCount = await rpc("arkiv_getEntityCount", [{ query: histQuery(), block: state.histBlock }]);
@@ -319,7 +320,7 @@
     let timer = null;
     ws.onopen = () => {
       ws.send(JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_subscribe", params: ["newHeads"] }));
-      ws.send(JSON.stringify({ jsonrpc: "2.0", id: 2, method: "eth_subscribe", params: ["logs", { address: C.registry, topics: [null, null, [...KNOWN.keys()].map(pad32)] }] }));
+      ws.send(JSON.stringify({ jsonrpc: "2.0", id: 2, method: "eth_subscribe", params: ["logs", { address: C.registry, topics: [null, null, [...KNOWN.keys(), C.burn].map(pad32)] }] }));
       state.wsOk = true; renderChain();
     };
     ws.onmessage = (m) => {
@@ -352,7 +353,7 @@
       if (r.a.app !== "doorledger") continue;
       if (state.approvedOnly && !APPROVED.includes(r.creator)) continue;
       if (r.a.kind === "episode") {
-        if (!state.hist.some((h) => h.key === key)) { state.hist.unshift(r); state.histCount = (state.histCount || 0) + 1; }
+        if (!state.hist.some((h) => h.key === key)) { state.hist.unshift(r); state.hist.sort((x, y) => (y.a.t0 || 0) - (x.a.t0 || 0)); state.histCount = (state.histCount || 0) + 1; }
         else state.hist = state.hist.map((h) => (h.key === key ? r : h));
       } else if (r.a.kind === "lease" || r.a.kind === "pulse") {
         state.live.set(key, r);

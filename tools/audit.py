@@ -95,6 +95,9 @@ def main() -> int:
     for creator in sorted(approved):
         mine = sorted("%s:%s:%s" % (v, r, s) for (c, v, r, s) in leases if c == creator)
         print("  %s open: %s" % (labels.get(creator, creator), ", ".join(mine) or "none"))
+    if not n_burned:
+        warns.append("no approved episode yet: the close batch and burn have not run on product data (no halt has reopened); "
+                     "tools/burn_check.py shows the lock on a selftest entity")
     for w in warns:
         print("WARN", w)
     for f in fails:

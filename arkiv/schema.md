@@ -92,6 +92,30 @@ SELECT   = {"key":true,"creator":true,"owner":true,"createdAt":true,"expiresAt":
 - **Numbers are always tagged** `u64(...)`: an untagged number is an i32 and silently matches nothing against these attributes (friction item 1).
 - **Live updates:** a WebSocket `eth_subscribe` to `newHeads` (ages rows and drops expired leases, since expiry emits no event) and to `logs` from `0x4400000000000000000000000000000000000044` with the watcher addresses as the owner topic; each new or changed key is fetched with `arkiv_getEntity`, which costs no query budget.
 
+## Build on it: examples
+
+**A wallet that warns before a user sends to a shut deposit route.** Before showing a Gate deposit address for USDT on Tron, ask whether trusted watchers currently see that route shut:
+
+```
+app = str('doorledger') AND kind = str('lease') AND venue = str('gate') AND net = str('tron') AND side = str('deposit') AND ($creator = addr(0x65ebe97db5cd7160bf9a2aa7818241f9e5768a92) OR $creator = addr(0xc10547dbac4e57b89f0f186d79c3a70b1fe533fb))
+```
+
+Any row means "a trusted watcher saw this network's deposits shut within its lease life"; the payload's `assets` says whether USDT is among the shut assets.
+
+**A reliability score per venue.** Count closed halts per venue over a window and how long they lasted:
+
+```
+app = str('doorledger') AND kind = str('episode') AND venue = str('binance') AND t0 >= u64(1790812800) AND <trusted creators>
+```
+
+`tools/consumer_example.py` is a working consumer written only from this page (standard library, no Door Ledger code).
+
+## Versioning
+
+- Every payload carries `"v": 1`. Within version 1, fields are only ever added, never renamed, removed or re-typed; readers must ignore fields they do not know.
+- Attribute names and types listed above are fixed for version 1. A breaking change would use a new `app` value (for example `doorledger2`), so old readers keep working against old data.
+- `rule` in every lease and episode payload records the thresholds that produced it, so rows written under a future rule change stay interpretable.
+
 ## Example: reproduce the ledger with curl
 
 ```
