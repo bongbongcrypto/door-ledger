@@ -7,6 +7,18 @@
 - Chain: Arkiv Tiramisu testnet, chain id 7738577
 - Built for the Arkiv Global Tour Stop (9 to 18 October 2026). Tracks: Censorship Resistance, Open Source, Security.
 
+## Read it without us
+
+The page is a convenience. The records live on Arkiv, so they stay readable if this repository, GitHub Pages and both of our watchers disappear: closed halts are kept 180 days and anyone can extend them. One command against the public node is enough:
+
+```
+curl -s https://rpc.tiramisu.db-chain.testnet.arkiv.network -H 'content-type: application/json' --data-binary @- <<'EOF'
+{"jsonrpc":"2.0","id":1,"method":"arkiv_query","params":["app = str('doorledger') AND kind = str('episode') AND ($creator = addr(0x65ebe97db5cd7160bf9a2aa7818241f9e5768a92) OR $creator = addr(0xc10547dbac4e57b89f0f186d79c3a70b1fe533fb))",{"limit":20,"select":{"key":true,"creator":true,"owner":true,"attributes":true,"payload":true}}]}
+EOF
+```
+
+Swap `kind = str('episode')` for `kind = str('lease')` to get the halts open right now. `tools/consumer_example.py` does the same in 104 lines of standard-library Python.
+
 ## Check it in two minutes
 
 1. Open the live page. "Open now" lists network-wide halts that a watcher is confirming right now. Each row says which watchers see it and when its lease lapses if nobody renews it.
@@ -17,7 +29,16 @@
 
 ## The problem
 
-Exchanges switch deposits and withdrawals off per network all the time: wallet maintenance, a chain upgrade, an incident. While a door is shut, people who need to move funds are stuck, and arbitrage between venues breaks. Afterwards there is no independent record of it.
+Exchanges switch deposits and withdrawals off per network all the time: wallet maintenance, a chain upgrade, an incident. Who gets hurt:
+
+- **Holders who need to withdraw over one specific network.** Binance withdrawals on Polkadot Asset Hub stayed shut for about 105 hours (2 to 7 October 2026). Anyone who needed DOT out on that network waited four days, with no public timeline of when it started or how long such halts usually last.
+- **Traders and market makers who rebalance between venues.** When Bithumb stopped every coin for about 10 hours on 30 September 2026, nobody could move coins in or out and its prices drifted far from other venues.
+- **Wallets, bridges and payment apps** that send users to an exchange deposit address and need to know whether it is open, and how often it fails.
+- **Anyone comparing exchange reliability**, from researchers to journalists. Today there is nothing to compare.
+
+What changes from day one: one page, or one curl, shows which networks are shut right now, which independent watchers confirm it, and how long past halts lasted, and nobody, including us, can quietly rewrite that history afterwards.
+
+Why nothing like this exists:
 
 - The exchanges' own endpoints only say whether a door is open now. None of the four we read (Binance, Gate, KuCoin, Bithumb) says when it last changed. We checked: Binance's `updateTime` does not move when a door flips.
 - So a halt's start, end and length exist only if someone outside the exchange writes them down, and if that someone runs a normal server, the history is only as durable and honest as that server.
@@ -41,6 +62,22 @@ How often it happens: before this project, the author's own private exchange mon
 - An open halt is a **lease**: a short-lived entity its watcher keeps extending while it still sees the halt. If the watcher dies, the lease lapses and the halt leaves "Open now" on its own.
 - When the network reopens, the watcher writes an **episode** and, in the same atomic batch, transfers it to `0x...dEaD` and deletes the lease. The episode is read-only, lives 180 days, and anyone can extend it.
 - Every hour each watcher writes a **pulse** per venue: how many reads succeeded, what it judged, a hash of the response it read.
+
+## Trust: forged reports are filtered by who wrote them
+
+A fake "Binance has halted ETH withdrawals" spreads fast: traders sell, bridges and wallets pause deposits, and the person who started it profits. On Door Ledger a row only counts if its `$creator`, which the chain sets and nobody can forge, is a watcher you trust. Its attributes and payload are never used to decide who wrote it.
+
+- The page ships with a planted spoof that has exactly the same attributes as a real halt. It stays hidden until you turn off "Approved watchers only", then shows up tagged "unapproved creator".
+- You choose whom to trust, without asking us: add `?watchers=0x...,0x...` to the page address, or pass `--watchers` to `tools/consumer_example.py`.
+- A closed record cannot be changed after the fact, so a watcher cannot back-date a reopening either: it is handed to `0x...dEaD` in the transaction that creates it.
+
+## Build on it
+
+`arkiv/schema.md` is the data contract: entity types, every attribute, expiry per type, and the exact queries the page runs. Nothing else is needed to use the data.
+
+- `tools/consumer_example.py` is a second consumer written only from that contract (no Door Ledger code, standard library only): a terminal view plus a follower that prints new halts and reopenings.
+- Run your own watcher (below) and anyone can trust it with `?watchers=`; it does not need to be on our list.
+- Anyone can extend a closed record's life, so a project that depends on the history can keep it alive past 180 days.
 
 ## Why Arkiv
 
@@ -85,7 +122,7 @@ ARKIV_KEY_FILE=/path/to/key.env python -m writer.run --role mywatcher --loop    
 ARKIV_KEY_FILE=/path/to/key.env python -m writer.run --role mywatcher --once     # one scheduled run, 4-hour leases
 ```
 
-A watcher costs about 0.015 GLM a day. To have the page show it, add its address to `web/config.js` and `arkiv/reporters.json`.
+A watcher costs about 0.015 GLM a day. Anyone can view the ledger through it with `?watchers=<its address>`; to list it on our default page, open a pull request adding it to `web/config.js` and `arkiv/reporters.json`.
 
 Serve the page locally with `python -m http.server 8000 --directory web`.
 
@@ -106,6 +143,8 @@ python tools/burn_check.py --dry-run       # the burn lock, simulated
 | `writer/venues.py` | The four exchange readers and the halt rule |
 | `writer/engine.py` | Leases, episodes, pulses; safe retries |
 | `writer/run.py` | Command line (`--loop`, `--once`, `--dry-run`) |
+| `tools/consumer_example.py` | A standalone consumer built only from the schema |
+| `tools/audit.py` | Checks everything the watchers wrote, from the chain alone |
 | `web/` | The static page (no build step, no dependencies) |
 | `arkiv/schema.md` | Entity types, attributes, expiry, the queries the page runs |
 | `arkiv/friction.md` | What got in our way, reproduced with `tools/friction_probe.py` |
