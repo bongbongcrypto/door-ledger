@@ -259,6 +259,11 @@
     add("Created at block", String(r.createdAt));
     add("Expires at block", String(r.expiresAt) + (r.expiresAt > state.head ? ", in about " + span((r.expiresAt - state.head) * C.blockSeconds) : ""));
     if (r.p && r.p.lease_tx) add("Opening tx", el("a", { href: C.explorer + "/tx/" + r.p.lease_tx, target: "_blank", rel: "noopener" }, r.p.lease_tx));
+    const txCell = el("dd", {}, "looking up…");
+    meta.append(el("dt", {}, "Created in tx"), txCell);
+    rpc("eth_getLogs", [{ address: C.registry, fromBlock: "0x" + r.createdAt.toString(16), toBlock: "0x" + r.createdAt.toString(16), topics: [T_CREATED, r.key] }])
+      .then((logs) => txCell.replaceChildren(logs && logs[0] ? el("a", { href: C.explorer + "/tx/" + logs[0].transactionHash, target: "_blank", rel: "noopener" }, logs[0].transactionHash) : "not found"))
+      .catch(() => txCell.replaceChildren("lookup failed"));
     $("detail-h").textContent = r.a.kind === "pulse" ? "Pulse" : r.a.kind === "lease" ? "Open halt" : "Closed halt";
     $("detail-payload").textContent = r.p ? JSON.stringify(r.p, null, 2) : "(no JSON payload)";
     $("detail-query").textContent = curl("$key = key(" + r.key + ")", opts(1, state.atBlock));
