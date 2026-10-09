@@ -3,7 +3,7 @@
     # long-running watcher (a server): poll every 120 s, 30-min leases renewed every ~10 min
     python -m writer.run --role reporter1 --loop
 
-    # one-shot watcher (a scheduled job, e.g. GitHub Actions): 3 polls 60 s apart, 2-hour leases,
+    # one-shot watcher (a scheduled job, e.g. GitHub Actions): 3 polls 60 s apart, 4-hour leases,
     # its open halts are recovered from its own leases on Arkiv, so it needs no local state
     python -m writer.run --role reporter2 --once
 
@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import os
+import signal
 import sys
 import time
 
@@ -62,24 +63,42 @@ def main(argv=None) -> int:
         state = a.state or os.path.join("state", "%s.json" % a.role)
         rep = engine.Reporter(writer, lease_life=900, pulse_every_s=3600, pulse_life=4500, state_path=state, log=log)
         rep.load()
-        while True:
+        stop = []
+        signal.signal(signal.SIGTERM, lambda *_: stop.append(1))
+        while not stop:
             started = time.time()
             try:
                 rep.cycle()
-            except ak.ArkivError as e:
-                log("cycle error: %s" % e)
-            time.sleep(max(5.0, a.interval - (time.time() - started)))
-    rep = engine.Reporter(writer, lease_life=3600, pulse_every_s=0, pulse_life=3600, log=log)
+            except Exception as e:  # noqa: BLE001 - one bad cycle must not kill the watcher
+                log("cycle error: %s: %s" % (type(e).__name__, e))
+                rep.save()
+            while not stop and time.time() - started < a.interval:
+                time.sleep(1)
+        rep.save()
+        log("stopped; state saved")
+        return 0
+    rep = engine.Reporter(writer, lease_life=7200, pulse_every_s=0, pulse_life=5400, sampled=True, log=log)
     rep.load()
+    failed = 0
     for i in range(a.polls):
-        to_open, to_close = rep.observe()
-        rep.write_closes(to_close)
-        rep.write_opens(to_open)
+        try:
+            to_open, to_close = rep.observe()
+            if rep.resolve_pending():
+                rep.write_closes(to_close)
+                rep.write_opens(to_open)
+        except Exception as e:  # noqa: BLE001 - keep going: the heartbeat and pulses still matter
+            failed += 1
+            log("poll %d error: %s: %s" % (i + 1, type(e).__name__, e))
         if i < a.polls - 1:
             time.sleep(a.spacing)
-    rep.write_heartbeat()
-    rep.write_pulses(force=True)
-    return 0
+    try:
+        if rep.resolve_pending():
+            rep.write_heartbeat()
+            rep.write_pulses(force=True)
+    except Exception as e:  # noqa: BLE001
+        failed += 1
+        log("heartbeat error: %s: %s" % (type(e).__name__, e))
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

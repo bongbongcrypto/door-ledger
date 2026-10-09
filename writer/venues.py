@@ -17,16 +17,17 @@ Network rule (per venue, route and side):
 """
 from __future__ import annotations
 
-import gzip
 import hashlib
 import json
 import time
 import urllib.error
 import urllib.request
+import zlib
 from dataclasses import dataclass, field
 
 MIN_ASSETS = 3
-CLOSE_SHARE = 0.8
+CLOSE_SHARE = 0.8              # a route is halted at or above this shut share
+OPEN_LINE = 0.4                # ... and only counts as reopened at or below this one (hysteresis)
 ALIAS_SHARE = 0.8
 UA = "door-ledger/0.1 (+https://github.com/bongbongcrypto/door-ledger)"
 MAX_BYTES = 16 * 1024 * 1024
@@ -99,10 +100,14 @@ def fetch(url: str, timeout: float = 30.0) -> bytes:
                                                "Accept-Encoding": "gzip"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         raw = r.read(MAX_BYTES + 1)
-        if len(raw) > MAX_BYTES:
-            raise ValueError("response over %d bytes" % MAX_BYTES)
-        if r.headers.get("Content-Encoding", "").lower() == "gzip":
-            raw = gzip.decompress(raw)
+        gz = r.headers.get("Content-Encoding", "").lower() == "gzip"
+    if len(raw) > MAX_BYTES:
+        raise ValueError("response over %d bytes" % MAX_BYTES)
+    if gz:
+        d = zlib.decompressobj(16 + zlib.MAX_WBITS)
+        raw = d.decompress(raw, MAX_BYTES)
+        if d.unconsumed_tail:
+            raise ValueError("decompressed response over %d bytes" % MAX_BYTES)
     return raw
 
 
@@ -117,7 +122,7 @@ def parse_binance(body: bytes) -> tuple[list[Row], set[str], int]:
         coin = str(c.get("coin", "")).upper()
         if c.get("isLegalMoney"):
             continue
-        if c.get("trading", True):
+        if c.get("trading") is True:
             tradable.add(coin)
         for n in c.get("networkList") or []:
             rows.append(Row(coin, str(n.get("network", "")), str(n.get("contractAddress") or "").lower(),
@@ -131,7 +136,7 @@ def parse_gate(body: bytes) -> tuple[list[Row], set[str], int]:
     rows, tradable = [], set()
     for c in data:
         cur = str(c.get("currency", "")).upper()
-        if not c.get("delisted") and not c.get("trade_disabled"):
+        if c.get("delisted") is False and c.get("trade_disabled") is False:
             tradable.add(cur)
         for ch in c.get("chains") or []:
             name = str(ch.get("name", ""))
@@ -193,7 +198,7 @@ def poll(venue: str, now=time.time) -> Snapshot:
             rows, tradable, items = parse_kucoin(bodies[0], bodies[1])
         else:
             rows, tradable, items = parse_bithumb(bodies[0], bodies[1])
-    except (urllib.error.URLError, TimeoutError, ValueError, KeyError, TypeError, json.JSONDecodeError, OSError) as e:
+    except Exception as e:  # noqa: BLE001 - venue bodies are untrusted input; any failure means "unreadable"
         return Snapshot(venue, int(now()), False, error="%s: %s" % (type(e).__name__, str(e)[:200]))
     return Snapshot(venue, int(now()), True, rows, tradable, items, hashlib.sha256(bodies[0]).hexdigest(),
                     len(bodies[0]))
@@ -203,11 +208,12 @@ def poll(venue: str, now=time.time) -> Snapshot:
 # Rule: rows -> halted routes
 # ---------------------------------------------------------------------------------------------
 
-def halts(snap: Snapshot) -> tuple[list[RouteHalt], dict, set]:
-    """Halted (route, side) pairs in one snapshot, counts for the venue pulse, and the set of
-    (route, side) pairs this snapshot could judge at all (enough tradable assets with a known switch)."""
+def halts(snap: Snapshot) -> tuple[list[RouteHalt], dict, dict]:
+    """Halted (route, side) pairs in one snapshot, counts for the venue pulse, and every (route, side)
+    this snapshot could judge at all (enough tradable assets with a known switch), mapped to
+    (shut, known, shut asset names). Alias-suppressed routes are judged but not halted."""
     if not snap.ok:
-        return [], {}, set()
+        return [], {}, {}
     by_route: dict[str, list[Row]] = {}
     open_routes: dict[str, dict[tuple[str, str], set[str]]] = {"deposit": {}, "withdraw": {}}  # side -> (asset, contract) -> routes
     for r in snap.rows:
@@ -220,7 +226,7 @@ def halts(snap: Snapshot) -> tuple[list[RouteHalt], dict, set]:
                 open_routes["deposit"].setdefault((r.asset, r.contract), set()).add(r.route)
             if r.withdraw_open:
                 open_routes["withdraw"].setdefault((r.asset, r.contract), set()).add(r.route)
-    found, tradable_routes, evaluable = [], 0, set()
+    found, tradable_routes, judged = [], 0, {}
     for route, rows in by_route.items():
         if len(rows) >= MIN_ASSETS:
             tradable_routes += 1
@@ -228,12 +234,13 @@ def halts(snap: Snapshot) -> tuple[list[RouteHalt], dict, set]:
             known = [r for r in rows if (r.deposit_open if side == "deposit" else r.withdraw_open) is not None]
             if len(known) < MIN_ASSETS:
                 continue
-            evaluable.add((route, side))
             shut = [r for r in known if not (r.deposit_open if side == "deposit" else r.withdraw_open)]
-            if len(shut) < CLOSE_SHARE * len(known):
-                continue
             aliased = [r for r in shut if r.contract
                        and open_routes[side].get((r.asset, r.contract), set()) - {route}]
+            real_shut = {r.asset for r in shut} - {r.asset for r in aliased}
+            judged[(route, side)] = (len(real_shut), len(known), frozenset(real_shut))
+            if len(shut) < CLOSE_SHARE * len(known):
+                continue
             if shut and len(aliased) >= ALIAS_SHARE * len(shut):
                 continue
             eta = max((r.eta_ms for r in shut), default=0)
@@ -241,4 +248,4 @@ def halts(snap: Snapshot) -> tuple[list[RouteHalt], dict, set]:
                                    sorted({r.asset for r in shut}), eta))
     counts = {"items": snap.items, "routes": len(by_route), "tradable_routes": tradable_routes,
               "halted": len(found)}
-    return found, counts, evaluable
+    return found, counts, judged

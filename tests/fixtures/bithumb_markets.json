@@ -1,0 +1,21 @@
+[
+{"market":"KRW-BTC","english_name":"Bitcoin","market_warning":"NONE"},
+{"market":"KRW-ETH","english_name":"Ethereum","market_warning":"NONE"},
+{"market":"KRW-XRP","english_name":"XRP","market_warning":"NONE"},
+{"market":"KRW-ICX","english_name":"ICON","market_warning":"CAUTION"},
+{"market":"KRW-ZIL","english_name":"Zilliqa","market_warning":"CAUTION"},
+{"market":"KRW-LINK","english_name":"ChainLink","market_warning":"NONE"},
+{"market":"KRW-UNI","english_name":"Uniswap","market_warning":"NONE"},
+{"market":"KRW-SOL","english_name":"Solana","market_warning":"NONE"},
+{"market":"KRW-RENDER","english_name":"Render Token","market_warning":"NONE"},
+{"market":"KRW-USDT","english_name":"Tether USDt","market_warning":"NONE"},
+{"market":"KRW-USDC","english_name":"USD Coin","market_warning":"NONE"},
+{"market":"KRW-PYTH","english_name":"Pyth Network","market_warning":"NONE"},
+{"market":"KRW-JTO","english_name":"Jito","market_warning":"NONE"},
+{"market":"KRW-JUP","english_name":"Jupiter","market_warning":"NONE"},
+{"market":"KRW-BONK","english_name":"Bonk","market_warning":"NONE"},
+{"market":"BTC-ETH","english_name":"Ethereum","market_warning":"NONE"},
+{"market":"BTC-XRP","english_name":"XRP","market_warning":"NONE"},
+{"market":"BTC-SOL","english_name":"Solana","market_warning":"NONE"},
+{"market":"BTC-USDC","english_name":"USD Coin","market_warning":"NONE"}
+]

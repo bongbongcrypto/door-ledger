@@ -15,7 +15,9 @@ Wire facts this file relies on (Arkiv-Network/arkiv, crates/arkiv-bindings):
 """
 from __future__ import annotations
 
+import http.client
 import json
+import math
 import os
 import re
 import secrets
@@ -69,6 +71,26 @@ class ArkivError(RuntimeError):
     """An RPC error, or a registry revert decoded to its custom error name when known."""
 
 
+class ArkivPending(ArkivError):
+    """A signed transaction was handed to the node but its outcome is unknown. It may still land:
+    resolve it by hash before sending anything else from the same wallet."""
+
+    def __init__(self, tx: str, msg: str):
+        super().__init__(msg)
+        self.tx = tx
+
+
+class ReceiptUnknown(Exception):
+    """The receipt could not be read (RPC failure). Not an ArkivError on purpose: callers must not
+    mistake it for a revert or for an empty answer."""
+
+
+def dead_key(err: Exception) -> str | None:
+    """The entity key named by an EntityNotFound / EntityExpired revert, else None."""
+    m = re.search(r"(EntityNotFound|EntityExpired) \((0x[0-9a-fA-F]{72,})\)", str(err))
+    return ("0x" + m.group(2)[10:74].lower()) if m else None
+
+
 # ---------------------------------------------------------------------------------------------
 # Attributes and ops
 # ---------------------------------------------------------------------------------------------
@@ -110,6 +132,7 @@ class Op:
     tag: int
     data: bytes
     note: str = ""
+    ref: str = ""               # the existing entity this op touches (extend/transfer/delete)
 
 
 def op_create(attrs: list[tuple], min_lifetime: int, flags: int = 0, salt: int | None = None,
@@ -123,16 +146,16 @@ def op_create(attrs: list[tuple], min_lifetime: int, flags: int = 0, salt: int |
 
 def op_extend(key: str, min_lifetime: int, expires_at: int = 0) -> Op:
     return Op(OP_EXTEND, abi_encode(["(bytes32,uint64,uint64)"], [(bytes.fromhex(key[2:]), expires_at, min_lifetime)]),
-              "extend")
+              "extend", key.lower())
 
 
 def op_transfer(key: str, new_owner: str) -> Op:
     return Op(OP_TRANSFER, abi_encode(["(bytes32,address)"], [(bytes.fromhex(key[2:]), to_checksum_address(new_owner))]),
-              "transfer")
+              "transfer", key.lower())
 
 
 def op_delete(key: str) -> Op:
-    return Op(OP_DELETE, abi_encode(["(bytes32)"], [(bytes.fromhex(key[2:]),)]), "delete")
+    return Op(OP_DELETE, abi_encode(["(bytes32)"], [(bytes.fromhex(key[2:]),)]), "delete", key.lower())
 
 
 def execute_calldata(ops: list[Op]) -> str:
@@ -170,19 +193,28 @@ class Rpc:
                     out = json.loads(r.read())
             except urllib.error.HTTPError as e:
                 if e.code in (429, 500, 502, 503, 504) and attempt < self.retries:
-                    wait = float(e.headers.get("Retry-After") or delay)
+                    try:
+                        wait = float(e.headers.get("Retry-After") or delay)
+                    except ValueError:
+                        wait = delay
+                    if not math.isfinite(wait) or wait < 0:
+                        wait = delay
                     time.sleep(min(wait, 120.0))
                     delay *= 2
                     continue
                 raise ArkivError("%s HTTP %s" % (method, e.code)) from None
-            except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
+            except (urllib.error.URLError, OSError, http.client.HTTPException, json.JSONDecodeError, ValueError) as e:
                 if attempt < self.retries:
                     time.sleep(delay)
                     delay *= 2
                     continue
                 raise ArkivError("%s failed: %s" % (method, e)) from None
+            if not isinstance(out, dict):
+                raise ArkivError("%s: unexpected response" % method)
             if "error" in out:
                 raise ArkivError(_explain(method, out["error"]))
+            if "result" not in out:
+                raise ArkivError("%s: response without result" % method)
             return out["result"]
         raise ArkivError("%s: retries exhausted" % method)
 
@@ -260,27 +292,69 @@ class Writer:
         data = execute_calldata(ops)
         return int(self.rpc.call("eth_estimateGas", [{"from": self.addr, "to": REGISTRY, "data": data}]), 16)
 
-    def send(self, ops: list[Op], wait_s: float = 90.0) -> Receipt:
+    def send(self, ops: list[Op], wait_s: float = 90.0, on_signed=None) -> Receipt:
+        """Simulate, sign, broadcast and wait. A revert found by the simulation raises ArkivError before
+        anything is signed. Once signed, `on_signed(tx_hash, nonce)` runs before the broadcast so the
+        caller can persist it; any later uncertainty raises ArkivPending instead of a plain failure."""
         data = execute_calldata(ops)
-        gas = self.simulate(ops)  # raises the decoded revert before anything is signed
+        gas = self.simulate(ops)
         nonce = int(self.rpc.call("eth_getTransactionCount", [self.addr, "pending"]), 16)
         base = int(self.rpc.call("eth_gasPrice", []), 16)
         tx = {"type": 2, "chainId": CHAIN_ID, "nonce": nonce, "to": REGISTRY, "value": 0, "data": data,
               "gas": int(gas * 1.15) + 5000, "maxFeePerGas": max(2 * base, 2 * 10**9), "maxPriorityFeePerGas": 2}
         signed = self.acct.sign_transaction(tx)
         raw = getattr(signed, "raw_transaction", None) or signed.rawTransaction
-        h = self.rpc.call("eth_sendRawTransaction", ["0x" + bytes(raw).hex()])
+        h = "0x" + bytes(signed.hash).hex()
+        raw_hex = "0x" + bytes(raw).hex()
+        self.last_raw = raw_hex             # public once broadcast; kept so a lost broadcast can be resent
+        if on_signed:
+            on_signed(h, nonce)
+        try:
+            self.rpc.call("eth_sendRawTransaction", [raw_hex])
+        except ArkivError as e:
+            # The node may hold it anyway (a lost response, a retried send answered "already known").
+            return self.wait(h, wait_s, "broadcast error: %s" % e)
+        return self.wait(h, wait_s)
+
+    def wait(self, h: str, wait_s: float, why: str = "") -> Receipt:
         deadline = time.time() + wait_s
         while time.time() < deadline:
-            r = self.rpc.call("eth_getTransactionReceipt", [h])
-            if r:
-                if r["status"] != "0x1":
-                    raise ArkivError("tx %s reverted on chain" % h)
-                created = [lg["topics"][1] for lg in r["logs"]
-                           if lg["address"].lower() == REGISTRY.lower() and lg["topics"][0] == TOPIC_CREATED]
-                return Receipt(h, int(r["blockNumber"], 16), int(r["gasUsed"], 16), created, r["logs"])
+            try:
+                rc = self.receipt(h)
+            except ReceiptUnknown:
+                rc = None
+            if rc:
+                return rc
             time.sleep(2)
-        raise ArkivError("no receipt for %s after %ss (tx may still land; re-read state before retrying)" % (h, wait_s))
+        raise ArkivPending(h, "no receipt for %s after %ss%s" % (h, wait_s, (" (" + why + ")") if why else ""))
+
+    def receipt(self, h: str) -> Receipt | None:
+        """The mined receipt, or None when the node has none. A mined revert raises ArkivError; a failed
+        lookup raises ReceiptUnknown."""
+        try:
+            r = self.rpc.call("eth_getTransactionReceipt", [h])
+        except ArkivError as e:
+            raise ReceiptUnknown(str(e)) from None
+        if not r:
+            return None
+        if r["status"] != "0x1":
+            raise ArkivError("tx %s reverted on chain" % h)
+        created = [lg["topics"][1] for lg in r["logs"]
+                   if lg["address"].lower() == REGISTRY.lower() and lg["topics"][0] == TOPIC_CREATED]
+        return Receipt(h, int(r["blockNumber"], 16), int(r["gasUsed"], 16), created, r["logs"])
+
+    def known(self, h: str) -> bool:
+        """Whether the node still knows the transaction (pending or mined)."""
+        try:
+            return bool(self.rpc.call("eth_getTransactionByHash", [h]))
+        except ArkivError:
+            return True
+
+    def nonce_latest(self) -> int:
+        return int(self.rpc.call("eth_getTransactionCount", [self.addr, "latest"]), 16)
+
+    def nonce_pending(self) -> int:
+        return int(self.rpc.call("eth_getTransactionCount", [self.addr, "pending"]), 16)
 
 
 def attrs_of(entity: dict) -> dict:
