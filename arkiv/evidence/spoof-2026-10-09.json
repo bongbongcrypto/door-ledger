@@ -1,0 +1,12 @@
+{
+ "what": "Planted spoof rows: a lease and an episode with the same attributes as real rows, written by a wallet that is not an approved reporter. Readers that filter by $creator hide them.",
+ "utc": "2026-10-09T12:19:30Z",
+ "spoof_wallet": "0x730E78fc5afB38689fd6b2730DC1E8b59911f71E",
+ "tx": "0xa70ac02a191ac33f9564542d71dd8238a75b4e668bbeaeea8829b8cce55e2f82",
+ "block": 349310,
+ "created": {
+  "lease": "0x8650ebffd0f73c41b71d3a7cd00f8f17de7ff19388479bbd181dc6c13cff4921",
+  "episode": "0xf7e39724dd1d72b3fa0bb3126ec00dd49a9ebd2173e6a34fff5745d9e17623b9"
+ },
+ "reproduce": "python tools/plant_spoof.py --dry-run"
+}
