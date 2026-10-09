@@ -3,7 +3,7 @@
 **A public, tamper-proof history of when centralized exchanges shut deposits or withdrawals on a network, written to [Arkiv](https://arkiv.network) by independent watchers and read straight from the chain.**
 
 - Live page: https://bongbongcrypto.github.io/door-ledger/ (static, talks only to the public Arkiv node)
-- Demo video (3 min): _link added at submission_
+- Demo video (2:29): https://youtu.be/XWo1YbOvnek
 - Chain: Arkiv Tiramisu testnet, chain id 7738577
 - Built for the Arkiv Global Tour Stop (9 to 18 October 2026). Tracks: Censorship Resistance, Open Source, Security.
 
