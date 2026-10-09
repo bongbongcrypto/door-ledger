@@ -2,7 +2,7 @@
 its creator can no longer delete or edit it, while anyone can still extend its life.
 
     python tools/burn_check.py            # writes one 'selftest' entity from reporter1, then checks
-    python tools/burn_check.py --dry-run  # simulations only, nothing sent
+    python tools/burn_check.py --dry-run  # simulations only from a dummy address: no key, nothing sent
 
 Steps (all on Tiramisu):
  1. reporter1 sends one atomic batch: create(kind=selftest, flags=readonly|permissionless-extension) + transfer to dEaD.
@@ -25,13 +25,26 @@ from writer import arkiv as ak  # noqa: E402
 DAY = 43_200  # blocks at 2 s
 
 
+class _Sim:
+    """A key-less stand-in for ak.Writer that can only simulate."""
+
+    def __init__(self, rpc, addr):
+        self.rpc, self.addr = rpc, addr
+
+    def simulate(self, ops):
+        return ak.Writer.simulate(self, ops)
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args(argv)
     rpc = ak.Rpc()
-    me = ak.Writer(ak.load_account("reporter1"), rpc)
-    other = ak.Writer(ak.load_account("spoof"), rpc)
+    if a.dry_run:                      # simulation only: any address works, no key is read
+        me = other = _Sim(rpc, "0x000000000000000000000000000000000000bEEF")
+    else:
+        me = ak.Writer(ak.load_account("reporter1"), rpc)
+        other = ak.Writer(ak.load_account("spoof"), rpc)
     out = {"utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), "chain_id": ak.CHAIN_ID,
            "creator": me.addr, "burn": ak.BURN, "third_party": other.addr, "steps": []}
 
@@ -44,8 +57,18 @@ def main(argv=None) -> int:
     gas = me.simulate(batch)
     out["steps"].append({"step": "simulate create+transfer", "gas": gas, "predicted_key": key})
     if a.dry_run:
+        # The same lock, proven without a key: in one simulated batch the caller creates the entity,
+        # hands it to dEaD, then tries to delete it (must revert NotOwner) or extend it (must pass).
+        for label, tail, want in (("create+transfer, then the creator deletes", ak.op_delete(key), "NotOwner"),
+                                  ("create+transfer, then a non-owner extends", ak.op_extend(key, 14 * DAY), "ok")):
+            try:
+                g = me.simulate(batch + [tail])
+                out["steps"].append({"step": label, "result": "ok, gas %d" % g, "ok": want == "ok"})
+            except ak.ArkivError as e:
+                out["steps"].append({"step": label, "result": str(e)[:160], "ok": want in str(e)})
+        out["passed"] = all(st.get("ok", True) for st in out["steps"])
         print(json.dumps(out, indent=1))
-        return 0
+        return 0 if out["passed"] else 1
 
     rc = me.send(batch)
     out["steps"].append({"step": "create+transfer", "tx": rc.tx, "block": rc.block, "gas_used": rc.gas_used,
