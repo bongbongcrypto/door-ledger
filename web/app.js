@@ -156,7 +156,7 @@
         td("Venue", cap(first.a.venue)),
         td("Network", el("span", { class: "num" }, first.a.route), el("span", { class: "sub" }, first.a.net)),
         td("Side", tag(first.a.side + " shut", "open")),
-        td("Shut since", el("span", { class: "num" }, utc(first.a.t0)), el("span", { class: "sub" }, span(nowS() - first.a.t0) + " so far")),
+        td("First seen shut", el("span", { class: "num" }, utc(first.a.t0)), el("span", { class: "sub" }, "watched shut for " + span(nowS() - first.a.t0))),
         td("Assets shut", p.closed != null && p.listed ? p.closed + " of " + p.listed : "", el("span", { class: "sub" }, (p.assets || []).slice(0, 6).join(", "))),
         td("Seen by", el("span", { class: "who" }, ...g.map((r) => creatorTag(r.creator)))),
         td("Renewed until", el("span", { class: "num" }, "block " + until), el("span", { class: "sub" }, "lapses in " + span((until - state.head) * C.blockSeconds) + " unless renewed")));
