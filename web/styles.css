@@ -83,6 +83,7 @@ input, select { font: 400 15px/1.4 var(--sans); color: var(--ink); background: v
 .btn.ghost { background: transparent; color: var(--ink); }
 .btn:hover { background: var(--ink-hover); }
 .btn.ghost:hover { background: var(--ice); }
+.trust-banner { margin: 16px auto 0; padding: 12px var(--gutter); border: 2px solid var(--brown); background: var(--sheet); color: var(--ink); font-weight: 500; }
 .banner { margin: 16px 0 0; padding: 10px 12px; border: 1px solid var(--brown); color: var(--ink); background: var(--sheet); font-size: 14px; }
 
 /* blocks */

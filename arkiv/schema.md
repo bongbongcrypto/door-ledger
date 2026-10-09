@@ -7,7 +7,7 @@ Everything Door Ledger stores lives on the Arkiv Tiramisu testnet (chain id 7738
 | Wallet | Role | Runs on |
 |---|---|---|
 | `0x65EbE97db5Cd7160bf9a2aa7818241f9E5768A92` | Watcher A (approved) | always-on server, polls every 120 s |
-| `0xC10547DBac4E57b89F0f186d79C3a70b1FE533Fb` | Watcher B (approved) | scheduled GitHub Actions job, every 30 min |
+| `0xC10547DBac4E57b89F0f186d79C3a70b1FE533Fb` | Watcher B (approved) | GitHub Actions job about every 30 min (a backup trigger covers slots GitHub's scheduler skips) |
 | `0x730E78fc5afB38689fd6b2730DC1E8b59911f71E` | Planted spoof (never approved) | one-off demo of filtering by `$creator` |
 
 The approved list is the trust root (`arkiv/reporters.json`, mirrored in `web/config.js`). Readers keep a row only if its `$creator`, which the chain sets, is approved. Attributes and payloads can be written by anyone and are never used to decide who wrote a row.
@@ -80,7 +80,7 @@ SELECT   = {"key":true,"creator":true,"owner":true,"createdAt":true,"expiresAt":
 
 | Query | Used for |
 |---|---|
-| `app = str('doorledger') AND (kind = str('lease') OR kind = str('pulse')) AND APPROVED` | Open now and Watchers, one query, limit 200 |
+| `app = str('doorledger') AND (kind = str('lease') OR kind = str('pulse')) AND APPROVED` | Open now and Watchers, one query, pages of 200 (up to 5) pinned to one block |
 | the same without `AND APPROVED` | the switch "Approved watchers only" turned off (spoof rows appear, tagged) |
 | `app = str('doorledger') AND kind = str('episode') AND APPROVED` | Ledger, page size 20, newest first |
 | ledger filters appended: `AND venue = str('gate')`, `AND side = str('deposit')`, `AND dur_s >= u64(21600)`, `AND t0 >= u64(<unix s>)`, `AND t0 < u64(<unix s>)` | Ledger filters |

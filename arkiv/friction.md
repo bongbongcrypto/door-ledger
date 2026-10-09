@@ -137,7 +137,7 @@ Steps below give the JSON-RPC request body. POST it to the RPC URL with `content
 
 - **Surface:** the HTTPS edge in front of the RPC.
 - **Expected:** docs silent. The JSON-RPC pages describe plain JSON-RPC 2.0 over HTTP and use curl in every example.
-- **Actual:** the same `eth_blockNumber` POST sent with Python's standard library and its default `User-Agent: Python-urllib/3.12` got HTTP 403, body `error code: 1010`, `server: cloudflare` (Cloudflare error code 1010). With `User-Agent: door-ledger-friction-probe/1` it got 200. We first met this while writing the probe, when a CORS preflight sent without our own User-Agent got 403 as well.
+- **Actual:** the same `eth_blockNumber` POST sent with Python's standard library and its default `User-Agent: Python-urllib/3.12` got HTTP 403, body `error code: 1010`, `server: cloudflare` (Cloudflare error code 1010). With `User-Agent: door-ledger-friction-probe/1` it got 200. We first met it in our read-only research calls before the opening, which is why our client sent its own User-Agent from its first commit; the probe reproduces it.
 - **Steps to reproduce:**
   ```python
   import json, urllib.request
@@ -255,7 +255,7 @@ Steps below give the JSON-RPC request body. POST it to the RPC URL with `content
   ```
 - **Versions:** node reth/v2.5.0-189c0df on Tiramisu 7738577, tx in block 347218, read 2026-10-09 12:09:11 UTC; docs 45099f7.
 - **Suggested fix (docs only):** in `start-here/fundamentals.mdx:111`, say "owner, or any account if the entity has permissionless extension".
-- **Impact on Door Ledger:** anyone can keep a closed episode alive, which is what we want from a public record. A page that wants to credit who extended must read `tx.from`. Our live WebSocket filter matches the owner topic against reporter addresses, so it does not receive extensions of episodes already owned by `0x...dEaD`; their `expiresAt` comes from the history query instead.
+- **Impact on Door Ledger:** anyone can keep a closed episode alive, which is what we want from a public record. A page that wants to credit who extended must read `tx.from`. Our live WebSocket filter therefore includes `0x...dEaD` among the owner topics, so the page also hears extensions of burned episodes.
 
 ### 15. `execute()` calldata from eth_abi equals the docs example
 

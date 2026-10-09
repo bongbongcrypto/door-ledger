@@ -134,7 +134,7 @@
   function tag(text, cls, title) { return el("span", { class: "tag " + cls, title: title || "" }, text); }
   function creatorTag(addr) {
     const r = KNOWN.get(addr);
-    if (r && r.approved) return el("span", { class: "who" }, r.label);
+    if (r && r.approved) return el("span", { class: "who" }, r.label, OWN.length ? tag("your list", "spoof", "Trusted only because this link's ?watchers= list says so") : null);
     return el("span", { class: "who" }, short(addr), " ", tag("unapproved creator", "spoof", "Not on the approved watcher list. Hidden while the switch is on."));
   }
   function byWatcher(g) {
@@ -217,7 +217,9 @@
         td("Written by", creatorTag(r.creator)),
         td("Record", locked ? tag("locked", "locked", "Owned by 0x…dEaD: no one can edit or delete it") : tag("owner " + short(r.owner), "spoof"))));
     }
-    if (!state.hist.length) body.append(emptyRow(8, "No closed halt matches these filters."));
+    const filtered = Object.values(state.filters).some((v) => v);
+    if (!state.hist.length) body.append(emptyRow(8, filtered ? "No closed halt matches these filters."
+      : "No halt has closed yet since the watchers started on 9 October 2026. When one reopens, its record appears here, owned by 0x...dEaD and locked."));
     $("more").hidden = !state.histCursor;
     $("sum-closed").textContent = state.histCount == null ? "" : String(state.histCount);
   }
@@ -282,9 +284,24 @@
     }
   }
   async function loadLive() {
-    const res = await rpc("arkiv_query", [liveQuery(), opts(200, state.atBlock)]);
+    // up to 5 pages of 200, every page pinned to the first page's block (a cursor fails once the head moves)
+    let res = await rpc("arkiv_query", [liveQuery(), opts(200, state.atBlock)]);
     state.liveBlock = num(res.blockNumber);
-    state.live = new Map((res.data || []).map((r) => [r.key, decode(r)]));
+    const rows = [...(res.data || [])];
+    for (let page = 1; page < 5 && res.cursor; page++) {
+      res = await rpc("arkiv_query", [liveQuery(), opts(200, state.liveBlock, res.cursor)]);
+      rows.push(...(res.data || []));
+    }
+    state.live = new Map(rows.map((r) => [r.key, decode(r)]));
+  }
+  function matchesFilters(r) {
+    const f = state.filters, a = r.a;
+    if (f.venue && a.venue !== f.venue) return false;
+    if (f.side && a.side !== f.side) return false;
+    if (f.minDur && !(a.dur_s >= f.minDur)) return false;
+    if (f.from && !(a.t0 >= Date.parse(f.from + "T00:00:00Z") / 1000)) return false;
+    if (f.to && !(a.t0 < Date.parse(f.to + "T00:00:00Z") / 1000)) return false;
+    return true;
   }
   async function loadHistory(more) {
     const at = more ? state.histBlock : state.atBlock;
@@ -353,6 +370,7 @@
       if (r.a.app !== "doorledger") continue;
       if (state.approvedOnly && !APPROVED.includes(r.creator)) continue;
       if (r.a.kind === "episode") {
+        if (!matchesFilters(r)) continue;
         if (!state.hist.some((h) => h.key === key)) { state.hist.unshift(r); state.hist.sort((x, y) => (y.a.t0 || 0) - (x.a.t0 || 0)); state.histCount = (state.histCount || 0) + 1; }
         else state.hist = state.hist.map((h) => (h.key === key ? r : h));
       } else if (r.a.kind === "lease" || r.a.kind === "pulse") {
@@ -395,6 +413,11 @@
   }
 
   bind();
-  if (OWN.length) $("trust-note").textContent = "You are trusting your own list of watchers from the address bar: " + OWN.map(short).join(", ") + ". Remove ?watchers= to go back to ours.";
+  if (OWN.length) {
+    $("trust-note").textContent = "You are trusting your own list of watchers from the address bar: " + OWN.map(short).join(", ") + ". Remove ?watchers= to go back to ours.";
+    const t = $("trust-banner");
+    t.textContent = "Custom trust list from this link: only rows written by " + OWN.map(short).join(", ") + " are shown as trusted. These are not Door Ledger's approved watchers. Open the page without ?watchers= to see ours.";
+    t.hidden = false;
+  }
   reload().then(connect);
 })();

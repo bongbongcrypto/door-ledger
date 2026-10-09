@@ -2,7 +2,7 @@
 
 **A public, tamper-proof history of when centralized exchanges shut deposits or withdrawals on a network, written to [Arkiv](https://arkiv.network) by independent watchers and read straight from the chain.**
 
-- Live page: https://bongbongcrypto.github.io/door-ledger/ (static, talks only to the public Arkiv node)
+- Live page: https://bongbongcrypto.github.io/door-ledger/ (static; it talks to the public Arkiv node, and loads its typefaces from Google Fonts)
 - Demo video (2:29): https://youtu.be/XWo1YbOvnek
 - Chain: Arkiv Tiramisu testnet, chain id 7738577
 - Built for the Arkiv Global Tour Stop (9 to 18 October 2026). Tracks: Censorship Resistance, Open Source, Security.
@@ -24,8 +24,8 @@ Swap `kind = str('episode')` for `kind = str('lease')` to get the halts open rig
 1. Open the live page. "Open now" lists network-wide halts that a watcher is confirming right now. Each row says which watchers see it and when its lease lapses if nobody renews it.
 2. Look at "Watchers": every watcher posts an hourly pulse per venue, so an empty "Open now" never just means a dead watcher.
 3. Turn off "Approved watchers only". A planted fake halt (Binance, ETH, withdrawals) appears, tagged "unapproved creator". It has exactly the same attributes as a real row; only its on-chain `$creator` gives it away.
-4. Scroll to "Verify it yourself" and paste the curl command into a terminal. You get the same rows from the same public node, pinned to the same block.
-5. Open any closed record in the ledger: its owner is `0x...dEaD`. The watcher that wrote it can no longer delete or edit it (`python tools/burn_check.py --dry-run`, live evidence in `arkiv/evidence/burn-check-2026-10-09.json`).
+4. Scroll to "Verify it yourself" and paste the curl command into a bash terminal (on Windows PowerShell, save the JSON body to a file and run `curl.exe -s <rpc url> -H "content-type: application/json" --data-binary "@body.json"`). You get the same rows from the same public node, pinned to the same block.
+5. Closed halts land in the ledger owned by `0x...dEaD`, tagged "locked". If no halt has closed yet when you look, the lock is still checkable: `python tools/burn_check.py --dry-run` (no key) creates an entity, hands it to `0x...dEaD` and shows the creator's delete reverting `NotOwner` in one simulated batch, and the same lock done for real is the selftest entity in `arkiv/evidence/burn-check-2026-10-09.json`.
 
 ## The problem
 
@@ -51,7 +51,7 @@ How often it happens: before this project, the author's own private exchange mon
  exchange public endpoints            watchers (open source, anyone can run one)           Arkiv Tiramisu
  ------------------------             ------------------------------------------           --------------
  Binance  getNetworkCoinAll   --->    Watcher A  always-on server, polls every 120 s  --->  lease    (open halt, short life, renewed)
- Gate     /spot/currencies    --->    Watcher B  GitHub Actions, every 30 min         --->  episode  (closed halt, read-only, burned)
+ Gate     /spot/currencies    --->    Watcher B  GitHub Actions, ~every 30 min        --->  episode  (closed halt, read-only, burned)
  KuCoin   /currencies         --->                                                    --->  pulse    (hourly, per venue)
  Bithumb  /assetsstatus       --->
                                                                                               ^
@@ -69,7 +69,7 @@ A fake "Binance has halted ETH withdrawals" spreads fast: traders sell, bridges 
 
 - The page ships with a planted spoof that has exactly the same attributes as a real halt. It stays hidden until you turn off "Approved watchers only", then shows up tagged "unapproved creator".
 - You choose whom to trust, without asking us: add `?watchers=0x...,0x...` to the page address, or pass `--watchers` to `tools/consumer_example.py`.
-- A closed record cannot be changed after the fact, so a watcher cannot back-date a reopening either: it is handed to `0x...dEaD` in the transaction that creates it.
+- A closed record cannot be changed after the fact: it is handed to `0x...dEaD` in the transaction that creates it. What a watcher writes is still only as honest as that watcher, which is why the trust list is yours to choose.
 
 ## Build on it
 
@@ -105,6 +105,15 @@ What Arkiv gives us, each visible on the page:
 What stays off Arkiv on purpose: prices and order books, the raw exchange responses (only their sha256 goes on chain), per-coin switch flips that never add up to a network halt, alert logic, and any personal data.
 
 The honest limit: the record is as permanent as the Tiramisu testnet, and trust in a row is trust in the watcher that wrote it. That is why there are two watchers on different hosts, why their code is public, and why anyone can run a third.
+
+## Limits, and what breaks first
+
+- **Watcher honesty.** A watcher picks the times it writes. A dishonest approved watcher could write a fabricated halt, and because closed records are locked it could never be retracted; the remedy is to stop trusting that watcher. Two watchers on different hosts, public code and reader-chosen trust lists (`?watchers=`) are the mitigation, not a guarantee.
+- **The open-halts view reads at most 1,000 rows** (5 pages of 200, pinned to one block). With the approved filter off, anyone can push rows into that unfiltered view by writing spam leases (about 0.0012 GLM per 10). The approved view is filtered by creator inside the query, so spam does not reach it.
+- **The public node's anonymous query budget.** Each `arkiv_query` costs 100 units of a per-IP budget (friction item 3); the page spends 2 per load and follows updates over the WebSocket, which costs no queries. A heavily shared page would need an access key.
+- **Watcher B's schedule.** GitHub's scheduler delays or skips some runs of the 30-minute job, so a backup trigger dispatches it when a slot is missed. Watcher B's 4-hour leases ride out a few missed runs.
+- **Testnet life.** Records last as long as the Tiramisu testnet does.
+- **Coverage.** Four venues, network-wide halts only (single-coin suspensions are not recorded), and times are the watcher's clock, accurate to its poll interval.
 
 ## Run your own watcher
 
@@ -154,7 +163,12 @@ python tools/burn_check.py --dry-run       # the burn lock, simulated
 
 ## Prior work
 
-Everything in this repository was written from 9 October 2026, 11:00 UTC. Before the opening we read the Arkiv docs, ran read-only and simulated calls against Tiramisu, and drafted the data design; none of that code is in this repository. The author also runs a private exchange monitor; it informed which public endpoints to read and supplied the motivating numbers above, and none of its code is reused.
+Code: none reused. Every file in this repository was written from 9 October 2026, 11:00 UTC, by the author with an AI coding assistant (allowed by the rules), which is why large files landed within minutes of each other.
+
+What existed before the opening, none of it code in this repository:
+- a data-design draft and protocol notes from reading the Arkiv docs and node source, and from read-only and simulated calls against Tiramisu with throwaway scripts (that is where the custom User-Agent and the u64 tagging in our client come from);
+- three empty testnet wallets, funded on 9 October at 05:23 UTC (plain transfers, no entities; the first entity is at 11:09 UTC);
+- the author's private exchange monitor, which informed which public endpoints to read and supplied the motivating numbers above. None of its code is used.
 
 ## License
 

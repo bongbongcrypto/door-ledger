@@ -5,7 +5,7 @@ node and the Python standard library. It shows what another team can build on th
 asking anyone: a terminal view of open and closed halts, and a follower that prints new halts and
 reopenings as they land on chain.
 
-    python tools/consumer_example.py                       # open halts and the 10 latest closed ones
+    python tools/consumer_example.py                       # open halts and the first 10 closed ones returned (the node returns newest first today)
     python tools/consumer_example.py --follow              # then keep watching, every 2 minutes
     python tools/consumer_example.py --watchers 0xabc...,0xdef...   # trust your own list of watchers
     python tools/consumer_example.py --venue binance --min-hours 6  # filter closed halts
@@ -77,7 +77,7 @@ def main():
             venue, route, side, when(min(t for t, _ in seen)), len({c for _, c in seen})))
     if not halts:
         print("  none")
-    print("Closed halts (newest first):")
+    print("Closed halts (first 10 returned):")
     for row in closed:
         x = attrs(row)
         locked = "locked" if row["owner"].lower().endswith("dead") else "owner " + row["owner"]
