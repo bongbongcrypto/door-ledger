@@ -133,6 +133,10 @@
     if (r && r.approved) return el("span", { class: "who" }, r.label);
     return el("span", { class: "who" }, short(addr), " ", tag("unapproved creator", "spoof", "Not on the approved watcher list. Hidden while the switch is on."));
   }
+  function byWatcher(g) {
+    const order = C.reporters.map((r) => r.address);
+    return [...g].sort((x, y) => order.indexOf(x.creator) - order.indexOf(y.creator));
+  }
   function emptyRow(cols, text) { return el("tr", { class: "empty" }, el("td", { colspan: cols }, text)); }
 
   // ---------------------------------------------------------------------------- render
@@ -151,15 +155,15 @@
       const first = g.reduce((m, r) => (r.a.t0 < m.a.t0 ? r : m), g[0]);
       const spoofOnly = g.every((r) => !(KNOWN.get(r.creator) || {}).approved);
       const p = first.p || {};
-      const until = Math.max(...g.map((r) => r.expiresAt));
       const tr = el("tr", { class: "row" + (spoofOnly ? " spoofed" : ""), tabindex: "0", onclick: () => showDetail(first), onkeydown: (e) => { if (e.key === "Enter") showDetail(first); } },
         td("Venue", cap(first.a.venue)),
         td("Network", el("span", { class: "num" }, first.a.route), el("span", { class: "sub" }, first.a.net)),
         td("Side", tag(first.a.side + " shut", "open")),
         td("First seen shut", el("span", { class: "num" }, utc(first.a.t0)), el("span", { class: "sub" }, "watched shut for " + span(nowS() - first.a.t0))),
         td("Assets shut", p.closed != null && p.listed ? p.closed + " of " + p.listed : "", el("span", { class: "sub" }, (p.assets || []).slice(0, 6).join(", "))),
-        td("Seen by", el("span", { class: "who" }, ...g.map((r) => creatorTag(r.creator)))),
-        td("Renewed until", el("span", { class: "num" }, "block " + until), el("span", { class: "sub" }, "lapses in " + span((until - state.head) * C.blockSeconds) + " unless renewed")));
+        td("Seen by", el("span", { class: "who-list" }, ...byWatcher(g).map((r) => el("span", { class: "who-item" }, creatorTag(r.creator))))),
+        td("Lapses unless renewed", el("span", { class: "who-list" }, ...byWatcher(g).map((r) => el("span", { class: "who-item num" },
+          who(r.creator) + ": " + span((r.expiresAt - state.head) * C.blockSeconds))))));
       body.append(tr);
     }
     if (!rows.length) body.append(emptyRow(7, "No network-wide halt is open right now at the watched venues. The Watchers table shows they are still reading."));

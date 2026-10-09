@@ -104,6 +104,8 @@ table.ledger { width: 100%; border-collapse: collapse; font-size: 14px; }
 .tag.live { color: var(--green); }
 tr.spoofed td { color: var(--graphite); }
 .who { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+.who-list { display: flex; flex-direction: column; gap: 2px; }
+.who-item { white-space: nowrap; }
 
 .skeleton td { padding: 16px; }
 .skeleton span { display: block; height: 12px; margin: 8px 0; background: #eeedea; border-radius: 2px; animation: pulse 1.4s ease-in-out infinite; }
