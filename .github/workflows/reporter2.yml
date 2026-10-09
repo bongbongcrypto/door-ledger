@@ -3,7 +3,8 @@
 # leases, then a heartbeat and (at most hourly) pulses. It keeps no local state: open halts are
 # recovered from its own leases on Arkiv.
 #
-# Needs the repository secret ARKIV_REPORTER2_KEY (the reporter2 private key, 0x-prefixed hex).
+# Needs the repository secret ARKIV_REPORTER2_KEY (the reporter2 signing key, 0x-prefixed hex).
+# Schedules run on the default branch; GitHub may start them a few minutes late.
 name: reporter2
 
 on:

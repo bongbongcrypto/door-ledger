@@ -4,8 +4,12 @@
   "use strict";
   const C = window.DOOR_LEDGER_CONFIG;
   const $ = (id) => document.getElementById(id);
-  const APPROVED = C.reporters.filter((r) => r.approved).map((r) => r.address);
-  const KNOWN = new Map(C.reporters.map((r) => [r.address, r]));
+  // A reader can trust a different set of watchers without asking us: ?watchers=0xabc...,0xdef...
+  const OWN = (new URLSearchParams(location.search).get("watchers") || "").toLowerCase().split(",")
+    .map((x) => x.trim()).filter((x) => /^0x[0-9a-f]{40}$/.test(x));
+  const KNOWN = new Map(C.reporters.map((r) => [r.address, OWN.length ? { ...r, approved: OWN.includes(r.address) } : r]));
+  for (const a of OWN) if (!KNOWN.has(a)) KNOWN.set(a, { address: a, label: a.slice(0, 6) + "…" + a.slice(-4), approved: true });
+  const APPROVED = OWN.length ? OWN : C.reporters.filter((r) => r.approved).map((r) => r.address);
   const SELECT = { key: true, creator: true, owner: true, createdAt: true, expiresAt: true, attributes: true, payload: true };
   const T_CREATED = "0xb282d7c494b8899aa8015cd07be621530beb03409eb8c5e8fdc1411ba64356a5";
 
@@ -310,7 +314,7 @@
     let timer = null;
     ws.onopen = () => {
       ws.send(JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_subscribe", params: ["newHeads"] }));
-      ws.send(JSON.stringify({ jsonrpc: "2.0", id: 2, method: "eth_subscribe", params: ["logs", { address: C.registry, topics: [null, null, C.reporters.map((r) => pad32(r.address))] }] }));
+      ws.send(JSON.stringify({ jsonrpc: "2.0", id: 2, method: "eth_subscribe", params: ["logs", { address: C.registry, topics: [null, null, [...KNOWN.keys()].map(pad32)] }] }));
       state.wsOk = true; renderChain();
     };
     ws.onmessage = (m) => {
@@ -385,5 +389,6 @@
   }
 
   bind();
+  if (OWN.length) $("trust-note").textContent = "You are trusting your own list of watchers from the address bar: " + OWN.map(short).join(", ") + ". Remove ?watchers= to go back to ours.";
   reload().then(connect);
 })();
