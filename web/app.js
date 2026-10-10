@@ -108,7 +108,7 @@
   function span(s) {
     s = Math.max(0, Math.round(s));
     if (s < 3600) return Math.max(1, Math.round(s / 60)) + " min";
-    if (s < 86400) return (s / 3600).toFixed(s < 36000 ? 1 : 0) + " h";
+    if (s < 86400) return (s / 3600).toFixed(1) + " h";
     return (s / 86400).toFixed(1) + " days";
   }
   const nowS = () => (state.atBlock != null && state.headTime ? state.headTime : Math.floor(Date.now() / 1000));
