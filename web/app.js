@@ -219,7 +219,7 @@
     }
     const filtered = Object.values(state.filters).some((v) => v);
     if (!state.hist.length) body.append(emptyRow(8, filtered ? "No closed halt matches these filters."
-      : "No halt has closed yet since the watchers started on 9 October 2026. When one reopens, its record appears here, owned by 0x...dEaD and locked."));
+      : "No closed halt from the trusted watchers as of this block. When one reopens, its record appears here, owned by 0x...dEaD and locked."));
     $("more").hidden = !state.histCursor;
     $("sum-closed").textContent = state.histCount == null ? "" : String(state.histCount);
   }

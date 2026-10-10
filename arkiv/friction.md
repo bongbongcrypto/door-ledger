@@ -241,7 +241,7 @@ Steps below give the JSON-RPC request body. POST it to the RPC URL with `content
 - **Actual:** `entityNonce(0x...beef)` = 0. `execute([create(flags 1), delete(predicted key)])` simulated fine (95,960 gas). `execute([create(flags 1), patch(predicted key, [kind: str "y"])])` reverted `ReadOnlyEntity(0x4134...2673)`.
 - **Steps to reproduce:** `eth_call` `entityNonce(0x...beef)`, predict the key for salt `0xa5`, then `eth_estimateGas` from `0x...beef` of the two batches above.
 - **Versions:** node reth/v2.5.0-189c0df on Tiramisu 7738577, block 348999, 2026-10-09 12:09:09 UTC; docs 45099f7; eth_abi 6.0.0, no SDK.
-- **Impact on Door Ledger:** read-only alone does not make a record permanent, because its owner can still delete it. A closed episode is therefore created with flags 3 (read-only plus permissionless extension) and transferred to `0x000000000000000000000000000000000000dEaD` in the same batch (`writer/engine.py`). After that the creator's delete and transfer revert `NotOwner` (`arkiv/evidence/burn-check-2026-10-09.json`).
+- **Impact on Door Ledger:** read-only alone does not make a record permanent, because its owner can still delete it. A closed episode is therefore created with flags 3 (read-only plus permissionless extension) and transferred to `0x000000000000000000000000000000000000dEaD` in the same batch (`writer/engine.py`). After that the creator's delete and transfer revert `NotOwner` (`arkiv/evidence/burn-check-2026-10-09.json` for a selftest entity, `arkiv/evidence/episode-01a5b583.json` for the first real episode).
 
 ### 14. Permissionless extension by a third party
 
@@ -255,7 +255,7 @@ Steps below give the JSON-RPC request body. POST it to the RPC URL with `content
   ```
 - **Versions:** node reth/v2.5.0-189c0df on Tiramisu 7738577, tx in block 347218, read 2026-10-09 12:09:11 UTC; docs 45099f7.
 - **Suggested fix (docs only):** in `start-here/fundamentals.mdx:111`, say "owner, or any account if the entity has permissionless extension".
-- **Impact on Door Ledger:** anyone can keep a closed episode alive, which is what we want from a public record. A page that wants to credit who extended must read `tx.from`. Our live WebSocket filter therefore includes `0x...dEaD` among the owner topics, so the page also hears extensions of burned episodes.
+- **Impact on Door Ledger:** anyone can keep a closed episode alive, which is what we want from a public record. A page that wants to credit who extended must read `tx.from`. Our live WebSocket filter therefore includes `0x...dEaD` among the owner topics, so the page also hears extensions of burned episodes. Extension cannot shorten a burned record: on the 180-day episode `0x01a5...cd85`, a stranger's 14-day extend reverts `ExpiryNotExtended`, while one that reaches past the current expiry passes (`arkiv/evidence/episode-01a5b583.json`).
 
 ### 15. `execute()` calldata from eth_abi equals the docs example
 
@@ -276,7 +276,7 @@ Steps below give the JSON-RPC request body. POST it to the RPC URL with `content
   {"jsonrpc":"2.0","id":1,"method":"eth_call","params":[{"to":"0x4400000000000000000000000000000000000044","data":"0x36917bfd00000000000000000000000065ebe97db5cd7160bf9a2aa7818241f9e5768a92"},"0x54c4e"]}
   ```
 - **Versions:** node reth/v2.5.0-189c0df on Tiramisu 7738577, tx in block 347215, read 2026-10-09 12:09:12 UTC; docs 45099f7.
-- **Impact on Door Ledger:** the writer predicts keys so that one atomic batch can create an episode and transfer that same new entity to `0x...dEaD` (`writer/engine.py`).
+- **Impact on Door Ledger:** the writer predicts keys so that one atomic batch can create an episode and transfer that same new entity to `0x...dEaD` (`writer/engine.py`). The first real close, https://tiramisu.explorer.arkiv.network/tx/0x69a0d33e4fc912b8a583e0d3b3027a4d5d383a5a86cf0cf1fa3f51c793199168 (block 385879), shows it: its `EntityCreated` and `OwnershipTransferred` logs carry the same key, `0x01a5...cd85`.
 
 ### 17. Browser access: CORS and WebSocket subscriptions
 

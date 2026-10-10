@@ -38,16 +38,16 @@ Block numbers, not seconds, drive expiry: at 2 s per block, 900 blocks = 30 min,
 | Attribute | Type | Example | Why it is an attribute |
 |---|---|---|---|
 | `app`, `kind` | str | `doorledger`, `episode` | namespace, selects the ledger |
-| `venue`, `route`, `net`, `side` | str | as in `lease` | ledger filters |
-| `t0` | u64 | `1791544850` | start; date filters |
-| `t1` | u64 | `1791554606` | first poll that saw it reopen |
-| `dur_s` | u64 | `9756` | `t1 - t0`; "lasted at least 6 h" is `dur_s >= u64(21600)`. Stored because queries have no arithmetic |
+| `venue`, `route`, `net`, `side` | str | `gate`, `ADA`, `cardano`, `withdraw` | ledger filters |
+| `t0` | u64 | `1791576115` | start; date filters |
+| `t1` | u64 | `1791621264` | first poll that saw it reopen |
+| `dur_s` | u64 | `45149` | `t1 - t0`; "lasted at least 6 h" is `dur_s >= u64(21600)`. Stored because queries have no arithmetic |
 
-- **Payload:** `v, venue, route, net, side, t0, t1, dur_s, rule, listed, max_closed, assets[], eta_unix_ms, lease_key, lease_tx (the transaction that opened the halt, still on the explorer after the lease is gone), first_sha256, last_sha256, src, code, coverage`, plus `polls` and `gaps[[from, to]]` (watcher blind spells, honest coverage) for Watcher A.
-- **Expiry:** 7,776,000 blocks (180 days), extendable by anyone.
+- **Payload:** `v, venue, route, net, side, t0, t1, dur_s, rule, listed, max_closed, assets[], eta_unix_ms, lease_key, lease_tx (the transaction that opened the halt, still on the explorer after the lease is gone), first_sha256, last_sha256, src, code, coverage`, plus `polls` and `gaps[[from, to]]` (watcher blind spells, honest coverage) for Watcher A. For a `sampled` watcher (Watcher B) `last_sha256` repeats `first_sha256`: a scheduled run starts from the read-only lease, so it cannot carry the last shut response forward. The example values above are the first real episode, `0x01a5b58396c6920d75f6689bacc7fce478f6ae3a3d38a3821d4618ad79aacd85`.
+- **Expiry:** 7,776,000 blocks (180 days), extendable by anyone. An extend must land later than the current expiry and its `minLifetime` counts from the current block, so it has to cover the blocks still left plus the extra: a 14-day `minLifetime` on a fresh episode reverts `ExpiryNotExtended`.
 - **Flags:** read-only + permissionless extension (3).
-- **Owner:** `0x000000000000000000000000000000000000dEaD`, set by a transfer in the same transaction that creates it. After that the watcher that wrote it can no longer delete or edit it (live check: `tools/burn_check.py`, evidence `arkiv/evidence/burn-check-2026-10-09.json`), while anyone can still extend its life.
-- **Close batch (atomic):** `execute([create(episode), transfer(episode -> 0x...dEaD), delete(lease)])`. Either the ledger row exists and the open lease is gone, or nothing changed.
+- **Owner:** `0x000000000000000000000000000000000000dEaD`, set by a transfer in the same transaction that creates it. After that the watcher that wrote it can no longer delete or edit it, while anyone can still extend its life. Checked on real episodes with `python tools/burn_check.py --episode <key>` (no key needed; evidence `arkiv/evidence/episode-*.json`) and on a selftest entity (`arkiv/evidence/burn-check-2026-10-09.json`).
+- **Close batch (atomic):** `execute([create(episode), transfer(episode -> 0x...dEaD), delete(lease)])`. Either the ledger row exists and the open lease is gone, or nothing changed. First live one: tx `0x69a0d33e4fc912b8a583e0d3b3027a4d5d383a5a86cf0cf1fa3f51c793199168` (block 385879), receipt events `EntityCreated`, `OwnershipTransferred`, `EntityDeleted` in that order.
 
 ### `pulse`: proof that a watcher is alive and reading a venue
 

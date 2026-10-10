@@ -1,0 +1,64 @@
+{
+ "utc": "2026-10-10T09:21:46+00:00",
+ "chain_id": 7738577,
+ "key": "0x8e29726d70197e686ab5ec847ab474b64227a2dfee4fd1c270ba42238a68deed",
+ "creator": "0xc10547dbac4e57b89f0f186d79c3a70b1fe533fb",
+ "owner": "0x000000000000000000000000000000000000dead",
+ "flags": 3,
+ "created_at_block": 386458,
+ "expires_at_block": 8162458,
+ "attributes": {
+  "app": "doorledger",
+  "dur_s": 44921,
+  "kind": "episode",
+  "net": "cardano",
+  "route": "ADA",
+  "side": "withdraw",
+  "t0": 1791577643,
+  "t1": 1791622564,
+  "venue": "gate"
+ },
+ "steps": [
+  {
+   "step": "owner is 0x...dEaD, read-only and permissionless extension",
+   "ok": true
+  },
+  {
+   "step": "one transaction created it, handed it to 0x...dEaD and deleted the lease",
+   "tx": "0x9913bb655f5d5adf8a6198e8f8616b4a6c7d9f7b01141ce857c7b1b0b0ec9d60",
+   "from": "0xc10547dbac4e57b89f0f186d79c3a70b1fe533fb",
+   "status": "0x1",
+   "events": [
+    {
+     "event": "created",
+     "key": "0x8e29726d70197e686ab5ec847ab474b64227a2dfee4fd1c270ba42238a68deed"
+    },
+    {
+     "event": "transferred",
+     "key": "0x8e29726d70197e686ab5ec847ab474b64227a2dfee4fd1c270ba42238a68deed"
+    },
+    {
+     "event": "deleted",
+     "key": "0x4a5e120da97808a66d9a316524c773db979c4f08a7464c5fd950ba0ef29df44c"
+    }
+   ],
+   "ok": true
+  },
+  {
+   "step": "creator deletes it",
+   "result": "eth_estimateGas reverted: NotOwner (0xa3221ef28e29726d70197e686ab5ec847ab474b64227a2dfee4fd1c270ba42238a68deed000000000000000000000000c10547dbac4e57b89f0f186d79",
+   "ok": true
+  },
+  {
+   "step": "creator takes it back",
+   "result": "eth_estimateGas reverted: NotOwner (0xa3221ef28e29726d70197e686ab5ec847ab474b64227a2dfee4fd1c270ba42238a68deed000000000000000000000000c10547dbac4e57b89f0f186d79",
+   "ok": true
+  },
+  {
+   "step": "a stranger extends it 14 days past its current expiry",
+   "result": "allowed, gas 25581",
+   "ok": true
+  }
+ ],
+ "passed": true
+}

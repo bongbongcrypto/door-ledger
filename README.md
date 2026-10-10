@@ -25,7 +25,7 @@ Swap `kind = str('episode')` for `kind = str('lease')` to get the halts open rig
 2. Look at "Watchers": every watcher posts an hourly pulse per venue, so an empty "Open now" never just means a dead watcher.
 3. Turn off "Approved watchers only". A planted fake halt (Binance, ETH, withdrawals) appears, tagged "unapproved creator". It has exactly the same attributes as a real row; only its on-chain `$creator` gives it away.
 4. Scroll to "Verify it yourself" and paste the curl command into a bash terminal (on Windows PowerShell, save the JSON body to a file and run `curl.exe -s <rpc url> -H "content-type: application/json" --data-binary "@body.json"`). You get the same rows from the same public node, pinned to the same block.
-5. Closed halts land in the ledger owned by `0x...dEaD`, tagged "locked". If no halt has closed yet when you look, the lock is still checkable: `python tools/burn_check.py --dry-run` (no key) creates an entity, hands it to `0x...dEaD` and shows the creator's delete reverting `NotOwner` in one simulated batch, and the same lock done for real is the selftest entity in `arkiv/evidence/burn-check-2026-10-09.json`.
+5. Closed halts land in the ledger owned by `0x...dEaD`, tagged "locked". The first one is Gate withdrawals on Cardano (route `ADA`, all 8 tradable assets), shut from 2026-10-09 20:01 to 2026-10-10 08:34 UTC by Watcher A's clock, about 12.5 h, and closed by both watchers. `python tools/burn_check.py --episode 0x01a5b58396c6920d75f6689bacc7fce478f6ae3a3d38a3821d4618ad79aacd85` (no key) finds the transaction that wrote it, which also handed it to `0x...dEaD` and deleted the lease, then shows its creator's delete and transfer back reverting `NotOwner` while a stranger can still extend it. Saved runs for both watchers' records: `arkiv/evidence/episode-01a5b583.json`, `arkiv/evidence/episode-8e29726d.json`. `python tools/burn_check.py --dry-run` shows the same lock on a fresh entity.
 
 ## The problem
 
@@ -43,7 +43,7 @@ Why nothing like this exists:
 - The exchanges' own endpoints only say whether a door is open now. None of the four we read (Binance, Gate, KuCoin, Bithumb) says when it last changed. We checked: Binance's `updateTime` does not move when a door flips.
 - So a halt's start, end and length exist only if someone outside the exchange writes them down, and if that someone runs a normal server, the history is only as durable and honest as that server.
 
-How often it happens: before this project, the author's own private exchange monitor (a different program with a stricter filter; none of its code is used here) logged 19 network-wide closures that ended between 29 September and 8 October 2026. Six lasted 6 hours or more. The longest was Binance withdrawals on Polkadot Asset Hub, shut for about 105 hours. Bithumb also stopped every coin for about 10 hours on 30 September. These numbers motivate the project; they were not written to Arkiv.
+How often it happens: before this project, the author's own private exchange monitor (a different program with a stricter filter; none of its code is used here) logged 19 network-wide closures that ended between 29 September and 8 October 2026. Six lasted 6 hours or more. The longest was Binance withdrawals on Polkadot Asset Hub, shut for about 105 hours. Bithumb also stopped every coin for about 10 hours on 30 September. These numbers motivate the project; they were not written to Arkiv. The first halt Door Ledger itself closed on Arkiv is Gate withdrawals on Cardano: all 8 tradable assets shut for about 12.5 hours on 9 and 10 October 2026, recorded by both watchers.
 
 ## How it works
 
@@ -60,7 +60,7 @@ How often it happens: before this project, the author's own private exchange mon
 
 - A watcher calls a network halted when at least 3 tradable assets are listed on it and at least 80 % of them are shut, after 2 polls in a row. It calls it reopened at 40 % or less, after 3 polls in a row. Aliases (the same contract open on another route of the same venue) are not halts. Details: `arkiv/schema.md`.
 - An open halt is a **lease**: a short-lived entity its watcher keeps extending while it still sees the halt. If the watcher dies, the lease lapses and the halt leaves "Open now" on its own.
-- When the network reopens, the watcher writes an **episode** and, in the same atomic batch, transfers it to `0x...dEaD` and deletes the lease. The episode is read-only, lives 180 days, and anyone can extend it.
+- When the network reopens, the watcher writes an **episode** and, in the same atomic batch, transfers it to `0x...dEaD` and deletes the lease. The first live close is [tx `0x69a0d33e...9168`](https://tiramisu.explorer.arkiv.network/tx/0x69a0d33e4fc912b8a583e0d3b3027a4d5d383a5a86cf0cf1fa3f51c793199168) (block 385879): its receipt holds `EntityCreated`, `OwnershipTransferred` and `EntityDeleted`, in that order. The episode is read-only, lives 180 days, and anyone can extend it.
 - Every hour each watcher writes a **pulse** per venue: how many reads succeeded, what it judged, a hash of the response it read.
 
 ## Trust: forged reports are filtered by who wrote them
@@ -77,7 +77,7 @@ A fake "Binance has halted ETH withdrawals" spreads fast: traders sell, bridges 
 
 - `tools/consumer_example.py` is a second consumer written only from that contract (no Door Ledger code, standard library only): a terminal view plus a follower that prints new halts and reopenings.
 - Run your own watcher (below) and anyone can trust it with `?watchers=`; it does not need to be on our list.
-- Anyone can extend a closed record's life, so a project that depends on the history can keep it alive past 180 days.
+- Anyone can extend a closed record's life, so a project that depends on the history can keep it alive past 180 days. An extend's `minLifetime` counts from the current block, so ask for the blocks still left plus the extra; a bare 14 days on a fresh record reverts `ExpiryNotExtended`.
 
 ## Why Arkiv
 
@@ -97,8 +97,8 @@ What Arkiv gives us, each visible on the page:
 | `$creator` set by the protocol | "Approved watchers only" hides the planted spoof; nothing in the row's own data is trusted |
 | Per-entity expiry and `extend` | An open halt stays in "Open now" only while its watcher renews it ("lapses in 28 min unless renewed") |
 | Permissionless extension flag | Anyone can keep a closed record alive past 180 days |
-| Read-only flag plus ownership transfer | Closed records belong to `0x...dEaD`: no one can edit or delete them |
-| Atomic batches | Closing a halt (create episode, burn it, delete the lease) lands all at once or not at all |
+| Read-only flag plus ownership transfer | Closed records belong to `0x...dEaD`: no one can edit or delete them (the Gate ADA withdrawals record is tagged "locked"; `tools/burn_check.py --episode` checks it) |
+| Atomic batches | Closing a halt (create episode, burn it, delete the lease) lands all at once or not at all; a closed record's "Created in tx" link opens that one transaction |
 | `atBlock` | "View the ledger as of block N", and every curl on the page is pinned to the block it was answered at |
 | WebSocket logs | New and closed halts appear without a refresh loop |
 
@@ -111,7 +111,7 @@ The honest limit: the record is as permanent as the Tiramisu testnet, and trust 
 - **Watcher honesty.** A watcher picks the times it writes. A dishonest approved watcher could write a fabricated halt, and because closed records are locked it could never be retracted; the remedy is to stop trusting that watcher. Two watchers on different hosts, public code and reader-chosen trust lists (`?watchers=`) are the mitigation, not a guarantee.
 - **The open-halts view reads at most 1,000 rows** (5 pages of 200, pinned to one block). With the approved filter off, anyone can push rows into that unfiltered view by writing spam leases (about 0.0012 GLM per 10). The approved view is filtered by creator inside the query, so spam does not reach it.
 - **The public node's anonymous query budget.** Each `arkiv_query` costs 100 units of a per-IP budget (friction item 3); the page spends 2 per load and follows updates over the WebSocket, which costs no queries. A heavily shared page would need an access key.
-- **Watcher B's schedule.** GitHub's scheduler delays or skips some runs of the 30-minute job, so a backup trigger dispatches it when a slot is missed. Watcher B's 4-hour leases ride out a few missed runs.
+- **Watcher B's schedule.** GitHub's scheduler delays or skips some runs of the 30-minute job, so a backup trigger dispatches it when a slot is missed. Watcher B's 4-hour leases ride out a few missed runs. Until its next run, a halt that Watcher A has already closed can still show in "Open now" as seen by Watcher B alone.
 - **Testnet life.** Records last as long as the Tiramisu testnet does.
 - **Coverage.** Four venues, network-wide halts only (single-coin suspensions are not recorded), and times are the watcher's clock, accurate to its poll interval.
 
@@ -141,7 +141,9 @@ Serve the page locally with `python -m http.server 8000 --directory web`.
 python -m unittest discover -s tests       # 121 tests: parsers on recorded responses, the halt rule, the engine against a simulated registry
 python tools/check_schema.py               # every attribute and query is documented in arkiv/schema.md
 python tools/friction_probe.py             # re-runs every item in arkiv/friction.md against the live node (read-only)
-python tools/burn_check.py --dry-run       # the burn lock, simulated
+python tools/burn_check.py --dry-run       # the burn lock, simulated on a fresh entity (no key)
+python tools/burn_check.py --episode KEY   # the burn lock on a real closed record (no key)
+python tools/audit.py                      # everything the watchers wrote, checked from the chain (read-only)
 ```
 
 ## Repository map
@@ -158,7 +160,7 @@ python tools/burn_check.py --dry-run       # the burn lock, simulated
 | `arkiv/schema.md` | Entity types, attributes, expiry, the queries the page runs |
 | `arkiv/friction.md` | What got in our way, reproduced with `tools/friction_probe.py` |
 | `arkiv/reporters.json` | The approved watcher list |
-| `arkiv/evidence/` | Live evidence: burn check, planted spoof, friction probe output |
+| `arkiv/evidence/` | Live evidence: burn check on a selftest entity and on the first closed halt (`episode-*.json`), planted spoof, friction probe output |
 | `deploy/`, `.github/workflows/` | How Watcher A (systemd) and Watcher B (scheduled Actions job) run |
 
 ## Prior work
