@@ -1,0 +1,64 @@
+{
+ "utc": "2026-10-11T04:48:26+00:00",
+ "chain_id": 7738577,
+ "key": "0x52361c334b37ec0f5cea8dfe7e9d408f458fc84c4b3705d49a7ec7a1661de0fe",
+ "creator": "0x65ebe97db5cd7160bf9a2aa7818241f9e5768a92",
+ "owner": "0x000000000000000000000000000000000000dead",
+ "flags": 3,
+ "created_at_block": 421344,
+ "expires_at_block": 8197344,
+ "attributes": {
+  "app": "doorledger",
+  "dur_s": 16741,
+  "kind": "episode",
+  "net": "sui",
+  "route": "SUI",
+  "side": "withdraw",
+  "t0": 1791675457,
+  "t1": 1791692198,
+  "venue": "binance"
+ },
+ "steps": [
+  {
+   "step": "owner is 0x...dEaD, read-only and permissionless extension",
+   "ok": true
+  },
+  {
+   "step": "one transaction created it, handed it to 0x...dEaD and deleted the lease",
+   "tx": "0x9ba723c03590ad097f36c8f0ad8586569aedcc9aebb5666006d32d490bdcb1e8",
+   "from": "0x65ebe97db5cd7160bf9a2aa7818241f9e5768a92",
+   "status": "0x1",
+   "events": [
+    {
+     "event": "created",
+     "key": "0x52361c334b37ec0f5cea8dfe7e9d408f458fc84c4b3705d49a7ec7a1661de0fe"
+    },
+    {
+     "event": "transferred",
+     "key": "0x52361c334b37ec0f5cea8dfe7e9d408f458fc84c4b3705d49a7ec7a1661de0fe"
+    },
+    {
+     "event": "deleted",
+     "key": "0x7df082ff072a57f6f7cea98d1d1bf01bf5e7b374bbecfd3337484fd2dd721d4f"
+    }
+   ],
+   "ok": true
+  },
+  {
+   "step": "creator deletes it",
+   "result": "eth_estimateGas reverted: NotOwner (0xa3221ef252361c334b37ec0f5cea8dfe7e9d408f458fc84c4b3705d49a7ec7a1661de0fe00000000000000000000000065ebe97db5cd7160bf9a2aa781",
+   "ok": true
+  },
+  {
+   "step": "creator takes it back",
+   "result": "eth_estimateGas reverted: NotOwner (0xa3221ef252361c334b37ec0f5cea8dfe7e9d408f458fc84c4b3705d49a7ec7a1661de0fe00000000000000000000000065ebe97db5cd7160bf9a2aa781",
+   "ok": true
+  },
+  {
+   "step": "a stranger extends it 14 days past its current expiry",
+   "result": "allowed, gas 25581",
+   "ok": true
+  }
+ ],
+ "passed": true
+}
