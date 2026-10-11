@@ -137,10 +137,13 @@ class Reporter:
                 break
             at = int(res["blockNumber"], 16)
         chain: dict[tuple, Open] = {}
+        pulse_items: dict[str, list[int]] = {}
         for row in rows:
             a, p = ak.attrs_of(row), ak.payload_of(row) or {}
             if a.get("kind") == "pulse":
                 self.last_pulse_block = max(self.last_pulse_block, int(row["createdAt"], 16))
+                if a.get("venue") in self.venues and isinstance(p.get("items"), int) and p["items"] > 0:
+                    pulse_items.setdefault(a["venue"], []).append(p["items"])
                 continue
             o = Open(a.get("venue", ""), a.get("route", ""), a.get("net", ""), a.get("side", ""), int(a.get("t0", 0)),
                      lease_key=row["key"].lower(), expires_at=int(row["expiresAt"], 16), listed=p.get("listed", 0),
@@ -180,6 +183,12 @@ class Reporter:
                 o.gap_since = o.gap_since or saved_at
                 self.opens[o.id] = o
         self.size_hist = saved.get("size_hist", {})
+        if not self.size_hist and pulse_items:
+            # No state file (a scheduled --once run): start the short-response guard from the item counts in
+            # this reporter's own live pulses, so a short first poll is not taken as the venue's usual size.
+            now_h = int(self.now()) // 3600
+            for v, counts in pulse_items.items():
+                self.size_hist[v] = {str(now_h - 1 - i): [n, 0] for i, n in enumerate(sorted(counts, reverse=True)[:24])}
         self.last_pulse = saved.get("last_pulse", 0)
         self.pending = saved.get("pending")
         if not self.pending:
@@ -230,11 +239,11 @@ class Reporter:
             hist.pop(h)
         if hist:
             items = sorted(v[0] for v in hist.values())
-            trad = sorted(v[1] for v in hist.values())
-            ref_items, ref_trad = items[len(items) // 2], trad[len(trad) // 2]
+            trad = sorted(v[1] for v in hist.values() if v[1])   # 0 = not known (seeded from a pulse)
+            ref_items, ref_trad = items[len(items) // 2], trad[len(trad) // 2] if trad else 0
             if snap.items < SHORT_RESPONSE * ref_items:
                 return "short response: %d items, usual %d" % (snap.items, ref_items)
-            if len(snap.tradable) < SHORT_TRADABLE * ref_trad:
+            if ref_trad and len(snap.tradable) < SHORT_TRADABLE * ref_trad:
                 return "short tradable list: %d, usual %d" % (len(snap.tradable), ref_trad)
         cur = hist.get(str(now_h), [0, 0])
         hist[str(now_h)] = [max(cur[0], snap.items), max(cur[1], len(snap.tradable))]
