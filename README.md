@@ -31,8 +31,8 @@ Swap `kind = str('episode')` for `kind = str('lease')` to get the halts open rig
 
 Exchanges switch deposits and withdrawals off per network all the time: wallet maintenance, a chain upgrade, an incident. Who gets hurt:
 
-- **Holders who need to withdraw over one specific network.** Binance withdrawals on Polkadot Asset Hub stayed shut for about 105 hours (2 to 7 October 2026). Anyone who needed DOT out on that network waited four days, with no public timeline of when it started or how long such halts usually last.
-- **Traders and market makers who rebalance between venues.** When Bithumb stopped every coin for about 10 hours on 30 September 2026, nobody could move coins in or out and its prices drifted far from other venues.
+- **Holders who need to withdraw over one specific network.** Bithumb kept deposits and withdrawals on the Ontology network shut for about 65.5 hours (10 to 13 October 2026, on the ledger and confirmed by both watchers). Anyone who needed ONT or ONG out of Bithumb waited almost three days, with no public timeline of when it started or how long such halts usually last.
+- **Traders and market makers who rebalance between venues.** On 10 October 2026 the Ontology network was shut on Binance, Bithumb and Gate within two hours of each other and stayed shut for 42 to 65 hours, so nobody could move ONT between those three venues (all on the ledger).
 - **Wallets, bridges and payment apps** that send users to an exchange deposit address and need to know whether it is open, and how often it fails.
 - **Anyone comparing exchange reliability**, from researchers to journalists. Today there is nothing to compare.
 
