@@ -138,7 +138,7 @@ Serve the page locally with `python -m http.server 8000 --directory web`.
 ## Tests and checks
 
 ```
-python -m unittest discover -s tests       # 121 tests: parsers on recorded responses, the halt rule, the engine against a simulated registry
+python -m unittest discover -s tests       # 123 tests: parsers on recorded responses, the halt rule, the engine against a simulated registry
 python tools/check_schema.py               # every attribute and query is documented in arkiv/schema.md
 python tools/friction_probe.py             # re-runs every item in arkiv/friction.md against the live node (read-only)
 python tools/burn_check.py --dry-run       # the burn lock, simulated on a fresh entity (no key)

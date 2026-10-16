@@ -1407,6 +1407,37 @@ class SampledModeTests(EngineCase):
             rep.write_pulses(force=True)
         return rep
 
+    def test_once_mode_size_guard_starts_from_its_own_pulses(self):
+        h = Harness()
+        h.items = 1000
+        self.run_once(h)                                               # pulses record 1000 items
+        h.clock.t += 1800
+        h.reg.head += 900
+        h.items = 800                                                  # every poll of the next run is short
+        rep = self.run_once(h)
+        self.assertEqual(rep.tick["gate"]["fail"], 3)
+        self.assertTrue(any("short response: 800 items, usual 1000" in line for line in h.logs))
+
+    def test_once_mode_short_lists_cannot_close_a_halt(self):
+        # A scheduled run whose polls all come back short and open must not close the halt (a closed record
+        # is permanent); without the pulse seed the first short poll became the venue's usual size.
+        h = Harness()
+        h.items = 1000
+        h.states["gate"] = HALT
+        rep = self.run_once(h)
+        self.assertIn(HALT_ID, rep.opens)
+        h.clock.t += 1800
+        h.reg.head += 900
+        h.states["gate"] = SHORT_OPEN
+        rep = self.run_once(h)
+        self.assertIn(HALT_ID, rep.opens)
+        self.assertEqual(h.created("episode"), [])
+        h.clock.t += 1800                                              # full-size open polls do close it
+        h.reg.head += 900
+        h.states["gate"] = OPEN
+        self.run_once(h)
+        self.assertEqual(len(h.created("episode")), 1)
+
     def test_once_mode_pulses_at_most_every_pulse_gap_blocks(self):
         h = Harness(venues=vn.VENUES)
         self.run_once(h)
